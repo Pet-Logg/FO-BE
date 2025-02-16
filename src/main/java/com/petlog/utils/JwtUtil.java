@@ -45,14 +45,13 @@ public class JwtUtil {
         claims.put("role", role);
         claims.put("userId", userId);
 
-        return BEARER_PREFIX +
-                Jwts.builder()
-                        .setSubject("" + userId) // 사용자 식별자값(ID)
-                        .setClaims(claims)
-                        .setExpiration(new Date(date.getTime() + TOKEN_TIME)) // 만료 시간
-                        .setIssuedAt(date) // 발급일
-                        .signWith(key, signatureAlgorithm) // 암호화 알고리즘
-                        .compact();
+        return Jwts.builder()
+                    .setSubject("" + userId) // 사용자 식별자값(ID)
+                    .setClaims(claims)
+                    .setExpiration(new Date(date.getTime() + TOKEN_TIME)) // 만료 시간
+                    .setIssuedAt(date) // 발급일
+                    .signWith(key, signatureAlgorithm) // 암호화 알고리즘
+                    .compact();
     }
 
     // header 에서 JWT 가져오기

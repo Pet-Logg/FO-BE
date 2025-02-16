@@ -39,7 +39,7 @@ public class UserController {
 
         // 쿠키 생성
         String base64Token = Base64.getEncoder().encodeToString(("Bearer " + token).getBytes());
-        Cookie cookie = new Cookie("Authorization", base64Token);
+        Cookie cookie = new Cookie("Authorization", token);
         cookie.setHttpOnly(true);
         cookie.setSecure(false); // HTTPS를 사용하는 경우에만 설정
         cookie.setPath("/");
@@ -47,8 +47,6 @@ public class UserController {
 
         // 응답에 쿠키 추가
         response.addCookie(cookie);
-
-        System.out.println("쿠키가 노릇노릇");
 
         ResponseMessage responseMessage = ResponseMessage.builder()
                 .data(token) // 토큰 다시 준거

@@ -51,7 +51,6 @@ public class UserService {
     public String login(UserCommonDto userCommonDto) throws BadRequestException {
 
         Optional<Users> user = idCheck(userCommonDto.getEmail());
-        System.out.println(" user : " + user);
         String token = null;
 
         if (user.isEmpty()) {
