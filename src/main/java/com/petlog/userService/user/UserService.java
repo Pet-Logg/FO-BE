@@ -1,7 +1,7 @@
 package com.petlog.userService.user;
 
 import com.petlog.userService.domain.Users;
-import com.petlog.userService.dto.user.UserCommonDto;
+import com.petlog.userService.dto.UserCommonDto;
 import com.petlog.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;

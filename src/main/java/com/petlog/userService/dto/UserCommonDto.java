@@ -1,4 +1,4 @@
-package com.petlog.userService.dto.user;
+package com.petlog.userService.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

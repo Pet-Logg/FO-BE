@@ -1,7 +1,7 @@
 package com.petlog.userService.user;
 
 import com.petlog.userService.dto.ResponseMessage;
-import com.petlog.userService.dto.user.UserCommonDto;
+import com.petlog.userService.dto.UserCommonDto;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -38,15 +38,18 @@ public class UserController {
         String token = userService.login(userCommonDto);
 
         // 쿠키 생성
-        String base64Token = Base64.getEncoder().encodeToString(("Bearer " + token).getBytes());
-        Cookie cookie = new Cookie("Authorization", token);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(false); // HTTPS를 사용하는 경우에만 설정
-        cookie.setPath("/");
-        cookie.setMaxAge(3600); // 쿠키 유효 시간 설정 (1시간)
+//        String base64Token = Base64.getEncoder().encodeToString(("Bearer " + token).getBytes());
+//        Cookie cookie = new Cookie("Authorization", token);
+//        cookie.setHttpOnly(true);
+//        cookie.setSecure(false); // HTTPS를 사용하는 경우에만 설정
+//        cookie.setPath("/");
+//        cookie.setMaxAge(3600); // 쿠키 유효 시간 설정 (1시간)
 
-        // 응답에 쿠키 추가
-        response.addCookie(cookie);
+        // ✅ SameSite 설정 추가
+//        cookie.setAttribute("SameSite", "None");
+
+//         응답에 쿠키 추가
+//        response.addCookie(cookie);
 
         ResponseMessage responseMessage = ResponseMessage.builder()
                 .data(token) // 토큰 다시 준거
