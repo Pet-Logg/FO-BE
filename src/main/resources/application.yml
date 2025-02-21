@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/petlog
-    username: root
-    password: rootpassword
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
 mybatis:
@@ -11,5 +11,12 @@ mybatis:
 
 jwt:
   secret:
-    key: ${JWT_SECRET_KEY:7Leo7JeF7L2U7Iqk7ZmU7J207YyF7ZW064u56rWQ7Jyh6rO87KCV7J2E64Gd64K06rOg64KY66m06ryt7Leo7JeF7ZWY7Iuk7IiY7J6I7J2E6rKB64uI64ukLg}
+    key: ${JWT_SECRET_KEY}
 
+aws:
+  s3:
+    bucket: ${AWS_S3_BUCKET}  # S3 버킷 이름
+  credentials:
+    accessKey: ${AWS_S3_CREDENTIALS_ACCESSKEY}  #️ IAM 사용자 Access Key
+    secretKey: ${AWS_S3_CREDENTIALS_SECRETKEY}  # IAM 사용자 Secret Key
+  region: ap-northeast-2  # 사용 중인 AWS 리전 (서울 기준)
