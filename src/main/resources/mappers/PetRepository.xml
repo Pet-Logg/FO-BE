@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.petlog.petService.pet.PetRepository">
+
+  <resultMap id="PetResultMap" type="com.petlog.petService.domain.Pets">
+    <id column="id" property="petId"/>  <!-- DB의 id를 petId 매핑 -->
+    <result column="user_id" property="userId"/>
+    <result column="pet_img" property="petImg"/>
+    <result column="animal" property="animal"/>
+    <result column="pet_name" property="petName"/>
+    <result column="pet_birth" property="petBirth"/>
+    <result column="pet_gender" property="petGender"/>
+    <result column="pet_weight" property="petWeight"/>
+    <result column="created_at" property="createdAt"/>
+    <result column="updated_at" property="updatedAt"/>
+    <result column="deleted_at" property="deletedAt"/>
+  </resultMap>
+
+  <!--펫 정보 저장-->
+  <insert id="createPetInfo" parameterType="com.petlog.petService.domain.Pets" useGeneratedKeys="true" keyProperty="petId">
+    INSERT INTO pets (user_id, pet_img, animal, pet_name, pet_birth, pet_gender, pet_weight)
+    VALUES (#{userId}, #{petImg}, #{animal}, #{petName}, #{petBirth}, #{petGender}, #{petWeight})
+  </insert>
+
+</mapper>

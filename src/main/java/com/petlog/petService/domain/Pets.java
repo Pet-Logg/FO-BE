@@ -1,0 +1,31 @@
+package com.petlog.petService.domain;
+
+import com.petlog.userService.domain.CommonEntity;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.Date;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class Pets extends CommonEntity {
+
+    private int petId;
+    private int userId; // 주인의 아이디
+    private String petImg;
+    private Animal animal;
+    private String petName;
+    private Date petBirth;
+    private Gender petGender;
+    private double petWeight;
+
+    public enum Animal {
+        DOG, CAT
+    }
+
+    public enum Gender {
+        MALE, FEMALE
+    }
+}
