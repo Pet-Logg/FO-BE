@@ -18,6 +18,7 @@ public class Pets extends CommonEntity {
     private Animal animal;
     private String petName;
     private Date petBirth;
+    private String petBreed; // 견종, 묘종
     private Gender petGender;
     private double petWeight;
 

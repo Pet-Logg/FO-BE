@@ -25,4 +25,12 @@
     VALUES (#{userId}, #{petImg}, #{animal}, #{petName}, #{petBirth}, #{petGender}, #{petWeight})
   </insert>
 
+  <!-- userId로 등록된 반려동물 가져오기 -->
+  <select id="getPetsById" parameterType="com.petlog.petService.domain.Pets" resultMap="PetResultMap">
+    SELECT *
+    FROM pets
+    WHERE user_id = #{userId}
+        AND deleted_at IS NULL
+  </select>
+
 </mapper>

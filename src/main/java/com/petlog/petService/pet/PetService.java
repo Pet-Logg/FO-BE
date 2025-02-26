@@ -13,8 +13,8 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +29,6 @@ public class PetService {
                              String petBirth, String petBreed, String petGender, String petWeight, int userId ) throws BadRequestException {
 
         String imgUrl = null;
-
         if( petImage != null ){
             imgUrl = uploadFile(petImage);
         }
@@ -38,6 +37,7 @@ public class PetService {
         pet.setPetImg(imgUrl);
         pet.setAnimal(Pets.Animal.valueOf(petAnimal.toUpperCase()));
         pet.setPetName(petName);
+        pet.setPetBreed(petBreed);
         pet.setPetGender(Pets.Gender.valueOf(petGender.toUpperCase()));
         pet.setPetWeight(Double.parseDouble(petWeight));
         pet.setUserId(userId);
@@ -69,6 +69,12 @@ public class PetService {
         } catch (IOException e){
             throw new RuntimeException("파일 업로드 중 오류 발생", e);
         }
+    }
+
+    public List<Pets> getPetsById(int userId){
+        List<Pets> pets = petRepository.getPetsById(userId);
+
+        return pets;
     }
 
 }
