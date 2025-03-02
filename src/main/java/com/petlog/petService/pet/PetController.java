@@ -1,14 +1,12 @@
 package com.petlog.petService.pet;
 
 import com.petlog.petService.domain.Pets;
-import com.petlog.petService.dto.CreatePetInfoRequestDto;
 import com.petlog.userService.dto.ResponseMessage;
 import com.petlog.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -76,6 +74,22 @@ public class PetController {
 
         ResponseMessage response = ResponseMessage.builder()
                 .data(pet)
+                .statusCode(200)
+                .resultMessage("반려동물 가져오기 성공!")
+                .build();
+
+        return ResponseEntity.status(200).body(response);
+    }
+
+    // 펫 삭제
+    @DeleteMapping("/{petId}")
+    public ResponseEntity<ResponseMessage> deletePet (@PathVariable("petId") int petId, HttpServletRequest request){
+
+        int userId = extractUserIdFromToken(request);
+
+        petService.deletePet(userId, petId);
+
+        ResponseMessage response = ResponseMessage.builder()
                 .statusCode(200)
                 .resultMessage("반려동물 가져오기 성공!")
                 .build();

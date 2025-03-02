@@ -86,4 +86,7 @@ public class PetService {
         return pet;
     }
 
+    public void deletePet(int userId, int petId) {
+        petRepository.deletePet(userId, petId);
+    }
 }
