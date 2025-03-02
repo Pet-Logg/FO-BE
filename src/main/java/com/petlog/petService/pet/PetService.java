@@ -14,7 +14,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -75,6 +74,16 @@ public class PetService {
         List<Pets> pets = petRepository.getPetsById(userId);
 
         return pets;
+    }
+
+    public Pets getPetDetail(int userId, int petId){
+        Pets pet = petRepository.getPetDetail(userId, petId);
+
+        if (pet == null) {
+            throw new RuntimeException("반려동물 정보를 찾을 수 없습니다.");
+        }
+
+        return pet;
     }
 
 }

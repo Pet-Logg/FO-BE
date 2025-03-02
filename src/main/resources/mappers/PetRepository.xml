@@ -33,4 +33,14 @@
         AND deleted_at IS NULL
   </select>
 
+  <!-- userId로 등록된 반려동물 가져오기 -->
+  <select id="getPetDetail" parameterType="com.petlog.petService.domain.Pets" resultMap="PetResultMap">
+    SELECT *
+    FROM pets
+    WHERE user_id = #{userId}
+      AND id = #{petId}
+      AND deleted_at IS NULL
+    LIMIT 1
+  </select>
+
 </mapper>

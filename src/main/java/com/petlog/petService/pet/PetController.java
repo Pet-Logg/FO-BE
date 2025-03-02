@@ -8,6 +8,7 @@ import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -58,6 +59,23 @@ public class PetController {
         System.out.println("컨트롤러의 pets : " + pets);
         ResponseMessage response = ResponseMessage.builder()
                 .data(pets)
+                .statusCode(200)
+                .resultMessage("반려동물 가져오기 성공!")
+                .build();
+
+        return ResponseEntity.status(200).body(response);
+    }
+
+    // 펫 상세정보 가져오기
+    @GetMapping("/getPetDetail/{petId}")
+    public ResponseEntity<ResponseMessage> getPetDetail (@PathVariable("petId") int petId, HttpServletRequest request){
+
+        int userId = extractUserIdFromToken(request);
+
+        Pets pet = petService.getPetDetail(userId, petId);
+
+        ResponseMessage response = ResponseMessage.builder()
+                .data(pet)
                 .statusCode(200)
                 .resultMessage("반려동물 가져오기 성공!")
                 .build();

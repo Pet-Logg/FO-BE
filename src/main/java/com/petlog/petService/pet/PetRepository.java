@@ -11,4 +11,6 @@ public interface PetRepository {
     int createPetInfo(Pets pet);
 
     List<Pets> getPetsById(@Param("userId") int userid);
+
+    Pets getPetDetail(@Param("userId") int userid, @Param("petId") int petId);
 }
