@@ -13,8 +13,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +28,6 @@ public class PetService {
                              String petBirth, String petBreed, String petGender, String petWeight, int userId ) throws BadRequestException {
 
         String imgUrl = null;
-
         if( petImage != null ){
             imgUrl = uploadFile(petImage);
         }
@@ -38,6 +36,7 @@ public class PetService {
         pet.setPetImg(imgUrl);
         pet.setAnimal(Pets.Animal.valueOf(petAnimal.toUpperCase()));
         pet.setPetName(petName);
+        pet.setPetBreed(petBreed);
         pet.setPetGender(Pets.Gender.valueOf(petGender.toUpperCase()));
         pet.setPetWeight(Double.parseDouble(petWeight));
         pet.setUserId(userId);
@@ -71,4 +70,23 @@ public class PetService {
         }
     }
 
+    public List<Pets> getPetsById(int userId){
+        List<Pets> pets = petRepository.getPetsById(userId);
+
+        return pets;
+    }
+
+    public Pets getPetDetail(int userId, int petId){
+        Pets pet = petRepository.getPetDetail(userId, petId);
+
+        if (pet == null) {
+            throw new RuntimeException("반려동물 정보를 찾을 수 없습니다.");
+        }
+
+        return pet;
+    }
+
+    public void deletePet(int userId, int petId) {
+        petRepository.deletePet(userId, petId);
+    }
 }

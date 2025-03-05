@@ -1,6 +1,6 @@
 package com.petlog.petService.pet;
 
-import com.petlog.petService.dto.CreatePetInfoRequestDto;
+import com.petlog.petService.domain.Pets;
 import com.petlog.userService.dto.ResponseMessage;
 import com.petlog.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
@@ -10,6 +10,8 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/pet")
@@ -30,7 +32,7 @@ public class PetController {
             @RequestPart("petGender") String petGender,
             @RequestPart("petWeight") String petWeight,
             HttpServletRequest request) throws BadRequestException {
-        System.out.println("Authorization = " + request.getHeader("Authorization"));
+
         int userId = extractUserIdFromToken(request);
 
         int createdPet = petService.createPetInfo(petImage, petName, petAnimal, petBirth, petBreed, petGender, petWeight, userId);
@@ -44,11 +46,61 @@ public class PetController {
         return ResponseEntity.status(201).body(response);
     }
 
+    // userId에 등록된 반려동물 가져오기
+    @GetMapping("/getPetsById")
+    public ResponseEntity<ResponseMessage> getPetsById (HttpServletRequest request){
+
+        int userId = extractUserIdFromToken(request);
+
+        List<Pets> pets= petService.getPetsById(userId);
+
+        System.out.println("컨트롤러의 pets : " + pets);
+        ResponseMessage response = ResponseMessage.builder()
+                .data(pets)
+                .statusCode(200)
+                .resultMessage("반려동물 가져오기 성공!")
+                .build();
+
+        return ResponseEntity.status(200).body(response);
+    }
+
+    // 펫 상세정보 가져오기
+    @GetMapping("/getPetDetail/{petId}")
+    public ResponseEntity<ResponseMessage> getPetDetail (@PathVariable("petId") int petId, HttpServletRequest request){
+
+        int userId = extractUserIdFromToken(request);
+
+        Pets pet = petService.getPetDetail(userId, petId);
+
+        ResponseMessage response = ResponseMessage.builder()
+                .data(pet)
+                .statusCode(200)
+                .resultMessage("반려동물 가져오기 성공!")
+                .build();
+
+        return ResponseEntity.status(200).body(response);
+    }
+
+    // 펫 삭제
+    @DeleteMapping("/{petId}")
+    public ResponseEntity<ResponseMessage> deletePet (@PathVariable("petId") int petId, HttpServletRequest request){
+
+        int userId = extractUserIdFromToken(request);
+
+        petService.deletePet(userId, petId);
+
+        ResponseMessage response = ResponseMessage.builder()
+                .statusCode(200)
+                .resultMessage("반려동물 가져오기 성공!")
+                .build();
+
+        return ResponseEntity.status(200).body(response);
+    }
+
     // 토큰에서 유저 아이디 반환
     private int extractUserIdFromToken(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
 
-        System.out.println("token : " + token);
         if (token == null || !token.startsWith("Bearer ")) {
             throw new RuntimeException("Missing or invalid Authorization header");
         }
@@ -57,7 +109,6 @@ public class PetController {
         Claims claims = jwtUtil.getUserInfoFromToken(token); // JWT에서 클레임 가져오기
         System.out.println("claims = " + claims);
 
-        // ✅ 기존 코드 오류 수정: `getSubject()` 대신 `get("userId")` 사용
         Object userIdObject = claims.get("userId");
         if (userIdObject == null) {
             throw new RuntimeException("User ID not found in token claims");
@@ -72,4 +123,6 @@ public class PetController {
 
         return userId;
     }
+
+
 }

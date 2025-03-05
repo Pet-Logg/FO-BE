@@ -25,4 +25,31 @@
     VALUES (#{userId}, #{petImg}, #{animal}, #{petName}, #{petBirth}, #{petGender}, #{petWeight})
   </insert>
 
+  <!-- userId로 등록된 반려동물 가져오기 -->
+  <select id="getPetsById" parameterType="com.petlog.petService.domain.Pets" resultMap="PetResultMap">
+    SELECT *
+    FROM pets
+    WHERE user_id = #{userId}
+        AND deleted_at IS NULL
+  </select>
+
+  <!-- 펫 상세정보 가져오기 -->
+  <select id="getPetDetail" parameterType="com.petlog.petService.domain.Pets" resultMap="PetResultMap">
+    SELECT *
+    FROM pets
+    WHERE user_id = #{userId}
+      AND id = #{petId}
+      AND deleted_at IS NULL
+    LIMIT 1
+  </select>
+
+  <!-- 펫 삭제 -->
+  <update id="deletePet" parameterType="com.petlog.petService.domain.Pets">
+    UPDATE pets
+    set deleted_at = NOW()
+    WHERE id = #{petId}
+      AND user_id = #{userId}
+      AND deleted_at IS NULL
+  </update>
+
 </mapper>
