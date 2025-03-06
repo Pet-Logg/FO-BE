@@ -18,6 +18,11 @@ public class UserController {
 
     private final UserService userService;
 
+    @GetMapping("/healthCheck")
+    public String healthCheck (){
+        return "OK";
+    }
+
     // 회원가입
     @PostMapping("/signup")
     public ResponseEntity<ResponseMessage> createUser (@RequestBody UserCommonDto userCommonDto) throws BadRequestException {
