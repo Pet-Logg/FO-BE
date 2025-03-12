@@ -15,4 +15,6 @@ public interface PetRepository {
     Pets getPetDetail(@Param("userId") int userId, @Param("petId") int petId);
 
     void deletePet(@Param("userId") int userId, @Param("petId") int petId);
+
+    int updatePet(@Param("petId") int petId ,Pets pet);
 }

@@ -24,17 +24,17 @@ public class PetService {
     private final AmazonS3 amazonS3;
 
     //펫 정보 등록
-    public int createPetInfo(MultipartFile petImage, String petName, String petAnimal,
+    public int createPetInfo(MultipartFile petImg, String petName, String animal,
                              String petBirth, String petBreed, String petGender, String petWeight, int userId ) throws BadRequestException {
 
         String imgUrl = null;
-        if( petImage != null ){
-            imgUrl = uploadFile(petImage);
+        if( petImg != null ){
+            imgUrl = uploadFile(petImg);
         }
 
         Pets pet = new Pets();
         pet.setPetImg(imgUrl);
-        pet.setAnimal(Pets.Animal.valueOf(petAnimal.toUpperCase()));
+        pet.setAnimal(Pets.Animal.valueOf(animal.toUpperCase()));
         pet.setPetName(petName);
         pet.setPetBreed(petBreed);
         pet.setPetGender(Pets.Gender.valueOf(petGender.toUpperCase()));
@@ -47,7 +47,6 @@ public class PetService {
         } catch (Exception e) {
             throw new BadRequestException("잘못된 날짜 형식입니다: " + petBirth);
         }
-
 
         petRepository.createPetInfo(pet);
         return pet.getPetId();
@@ -88,5 +87,36 @@ public class PetService {
 
     public void deletePet(int userId, int petId) {
         petRepository.deletePet(userId, petId);
+    }
+
+    public void updatePet(int petId, MultipartFile petImg, String petName, String animal, String petBirth, String petBreed, String petGender, String petWeight, String isNeutered, List<String> disease, List<String> allergy, int userId) throws BadRequestException {
+
+        Pets pet = new Pets();
+
+        String imgUrl = null;
+        if( petImg != null ){
+            imgUrl = uploadFile(petImg);
+            pet.setPetImg(imgUrl);
+        }
+
+        pet.setAnimal(Pets.Animal.valueOf(animal.toUpperCase()));
+        pet.setPetName(petName);
+        pet.setPetBreed(petBreed);
+        pet.setPetGender(Pets.Gender.valueOf(petGender.toUpperCase()));
+        pet.setPetWeight(Double.parseDouble(petWeight));
+        pet.setUserId(userId);
+        pet.setIsNeutered(isNeutered);
+
+
+        try { // setBirth을 Date타입으로 바꾸기
+            LocalDate localDate = LocalDate.parse(petBirth, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            pet.setPetBirth(Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        } catch (Exception e) {
+            throw new BadRequestException("잘못된 날짜 형식입니다: " + petBirth);
+        }
+
+        System.out.println("pet : " + pet.toString());
+
+        petRepository.updatePet(petId, pet);
     }
 }

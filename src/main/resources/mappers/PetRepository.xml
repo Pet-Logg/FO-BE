@@ -14,6 +14,7 @@
     <result column="pet_birth" property="petBirth"/>
     <result column="pet_gender" property="petGender"/>
     <result column="pet_weight" property="petWeight"/>
+    <result column="isNeutered" property="isNeutered"/>
     <result column="created_at" property="createdAt"/>
     <result column="updated_at" property="updatedAt"/>
     <result column="deleted_at" property="deletedAt"/>
@@ -49,6 +50,24 @@
     set deleted_at = NOW()
     WHERE id = #{petId}
       AND user_id = #{userId}
+      AND deleted_at IS NULL
+  </update>
+
+  <!-- 펫 수정 -->
+  <update id="updatePet" parameterType="com.petlog.petService.domain.Pets">
+    UPDATE pets
+    set updated_at = NOW(),
+        <if test="pet.petImg != null">
+          pet_img = #{pet.petImg},
+        </if>
+        animal = #{pet.animal},
+        pet_name = #{pet.petName},
+        pet_birth = #{pet.petBirth},
+        pet_gender = #{pet.petGender},
+        pet_weight = #{pet.petWeight},
+        isNeutered = #{pet.isNeutered}
+    WHERE id = #{petId}
+      AND user_id = #{pet.userId}
       AND deleted_at IS NULL
   </update>
 

@@ -24,9 +24,9 @@ public class PetController {
     // 펫 정보 등록
     @PostMapping("/createPetInfo")
     public ResponseEntity<ResponseMessage> createPetInfo (
-            @RequestPart(value = "petImage", required = false) MultipartFile petImage,
+            @RequestPart(value = "petImg", required = false) MultipartFile petImg,
             @RequestPart("petName") String petName,
-            @RequestPart("petAnimal") String petAnimal,
+            @RequestPart("animal") String animal,
             @RequestPart("petBirth") String petBirth,
             @RequestPart("petBreed") String petBreed,
             @RequestPart("petGender") String petGender,
@@ -35,8 +35,7 @@ public class PetController {
 
         int userId = extractUserIdFromToken(request);
 
-        int createdPet = petService.createPetInfo(petImage, petName, petAnimal, petBirth, petBreed, petGender, petWeight, userId);
-
+        int createdPet = petService.createPetInfo(petImg, petName, animal, petBirth, petBreed, petGender, petWeight, userId);
         ResponseMessage response = ResponseMessage.builder()
                 .data(createdPet)
                 .statusCode(201)
@@ -54,7 +53,6 @@ public class PetController {
 
         List<Pets> pets= petService.getPetsById(userId);
 
-        System.out.println("컨트롤러의 pets : " + pets);
         ResponseMessage response = ResponseMessage.builder()
                 .data(pets)
                 .statusCode(200)
@@ -97,6 +95,34 @@ public class PetController {
         return ResponseEntity.status(200).body(response);
     }
 
+    // 펫 수정
+    @PostMapping(value = "/updatePet/{petId}")
+    public ResponseEntity<ResponseMessage> updatePet (
+            @PathVariable("petId") int petId,
+            @RequestPart(value = "petImg", required = false) MultipartFile petImg,
+            @RequestPart("petName") String petName,
+            @RequestPart("animal") String animal,
+            @RequestPart("petBirth") String petBirth,
+            @RequestPart("petBreed") String petBreed,
+            @RequestPart("petGender") String petGender,
+            @RequestPart("petWeight") String petWeight,
+            @RequestPart(value = "isNeutered", required = false) String isNeutered,
+            @RequestPart(value ="disease", required = false) List<String> disease,
+            @RequestPart(value ="allergy", required = false) List<String> allergy,
+            HttpServletRequest request) throws BadRequestException {
+
+        int userId = extractUserIdFromToken(request);
+
+        petService.updatePet(petId, petImg, petName, animal, petBirth, petBreed, petGender, petWeight, isNeutered, disease, allergy, userId);
+
+        ResponseMessage response = ResponseMessage.builder()
+                .statusCode(201)
+                .resultMessage("Pet update successfully")
+                .build();
+
+        return ResponseEntity.status(201).body(response);
+    }
+
     // 토큰에서 유저 아이디 반환
     private int extractUserIdFromToken(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
@@ -107,7 +133,6 @@ public class PetController {
 
         token = token.replace("Bearer ", ""); // "Bearer " 제거
         Claims claims = jwtUtil.getUserInfoFromToken(token); // JWT에서 클레임 가져오기
-        System.out.println("claims = " + claims);
 
         Object userIdObject = claims.get("userId");
         if (userIdObject == null) {

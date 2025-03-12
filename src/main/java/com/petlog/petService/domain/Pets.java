@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -21,6 +22,7 @@ public class Pets extends CommonEntity {
     private String petBreed; // 견종, 묘종
     private Gender petGender;
     private double petWeight;
+    private String isNeutered; // 중성화 여부
 
     public enum Animal {
         DOG, CAT
