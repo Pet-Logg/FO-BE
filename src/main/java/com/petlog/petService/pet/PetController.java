@@ -1,6 +1,8 @@
 package com.petlog.petService.pet;
 
 import com.petlog.petService.domain.Pets;
+import com.petlog.petService.dto.CreatePetInfoRequestDto;
+import com.petlog.petService.dto.UpdatePetRequestDto;
 import com.petlog.userService.dto.ResponseMessage;
 import com.petlog.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
@@ -24,18 +26,12 @@ public class PetController {
     // 펫 정보 등록
     @PostMapping("/createPetInfo")
     public ResponseEntity<ResponseMessage> createPetInfo (
-            @RequestPart(value = "petImg", required = false) MultipartFile petImg,
-            @RequestPart("petName") String petName,
-            @RequestPart("animal") String animal,
-            @RequestPart("petBirth") String petBirth,
-            @RequestPart("petBreed") String petBreed,
-            @RequestPart("petGender") String petGender,
-            @RequestPart("petWeight") String petWeight,
+            CreatePetInfoRequestDto dto,
             HttpServletRequest request) throws BadRequestException {
 
         int userId = extractUserIdFromToken(request);
 
-        int createdPet = petService.createPetInfo(petImg, petName, animal, petBirth, petBreed, petGender, petWeight, userId);
+        int createdPet = petService.createPetInfo(dto, userId);
         ResponseMessage response = ResponseMessage.builder()
                 .data(createdPet)
                 .statusCode(201)
@@ -99,21 +95,12 @@ public class PetController {
     @PostMapping(value = "/updatePet/{petId}")
     public ResponseEntity<ResponseMessage> updatePet (
             @PathVariable("petId") int petId,
-            @RequestPart(value = "petImg", required = false) MultipartFile petImg,
-            @RequestPart("petName") String petName,
-            @RequestPart("animal") String animal,
-            @RequestPart("petBirth") String petBirth,
-            @RequestPart("petBreed") String petBreed,
-            @RequestPart("petGender") String petGender,
-            @RequestPart("petWeight") String petWeight,
-            @RequestPart(value = "isNeutered", required = false) String isNeutered,
-            @RequestPart(value ="disease", required = false) List<String> disease,
-            @RequestPart(value ="allergy", required = false) List<String> allergy,
+            UpdatePetRequestDto dto,
             HttpServletRequest request) throws BadRequestException {
 
         int userId = extractUserIdFromToken(request);
 
-        petService.updatePet(petId, petImg, petName, animal, petBirth, petBreed, petGender, petWeight, isNeutered, disease, allergy, userId);
+        petService.updatePet(petId, dto, userId);
 
         ResponseMessage response = ResponseMessage.builder()
                 .statusCode(201)

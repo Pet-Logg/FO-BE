@@ -4,12 +4,15 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.petlog.config.S3Config;
 import com.petlog.petService.domain.Pets;
+import com.petlog.petService.dto.CreatePetInfoRequestDto;
+import com.petlog.petService.dto.UpdatePetRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -23,30 +26,33 @@ public class PetService {
     private final S3Config s3Config;
     private final AmazonS3 amazonS3;
 
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
     //펫 정보 등록
-    public int createPetInfo(MultipartFile petImg, String petName, String animal,
-                             String petBirth, String petBreed, String petGender, String petWeight, int userId ) throws BadRequestException {
+    public int createPetInfo(CreatePetInfoRequestDto dto, int userId ) throws BadRequestException {
 
         String imgUrl = null;
-        if( petImg != null ){
-            imgUrl = uploadFile(petImg);
+        if( dto.getPetImg() != null ){
+            imgUrl = uploadFile(dto.getPetImg());
         }
 
         Pets pet = new Pets();
         pet.setPetImg(imgUrl);
-        pet.setAnimal(Pets.Animal.valueOf(animal.toUpperCase()));
-        pet.setPetName(petName);
-        pet.setPetBreed(petBreed);
-        pet.setPetGender(Pets.Gender.valueOf(petGender.toUpperCase()));
-        pet.setPetWeight(Double.parseDouble(petWeight));
+        pet.setAnimal(Pets.Animal.valueOf(dto.getAnimal().toUpperCase()));
+        pet.setPetName(dto.getPetName());
+        pet.setPetBreed(dto.getPetBreed());
+        pet.setPetGender(Pets.Gender.valueOf(dto.getPetGender().toUpperCase()));
+        pet.setPetWeight(Double.parseDouble(dto.getPetWeight()));
         pet.setUserId(userId);
 
-        try { // setBirth을 Date타입으로 바꾸기
-            LocalDate localDate = LocalDate.parse(petBirth, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            pet.setPetBirth(Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        try { // // setBirth을 Date타입으로 바꾸기
+            if (dto.getPetBirth() != null) {
+                pet.setPetBirth(dateFormat.parse(dto.getPetBirth()));
+            }
         } catch (Exception e) {
-            throw new BadRequestException("잘못된 날짜 형식입니다: " + petBirth);
+            throw new BadRequestException("잘못된 날짜 형식입니다: " + dto.getPetBirth());
         }
+
 
         petRepository.createPetInfo(pet);
         return pet.getPetId();
@@ -89,33 +95,32 @@ public class PetService {
         petRepository.deletePet(userId, petId);
     }
 
-    public void updatePet(int petId, MultipartFile petImg, String petName, String animal, String petBirth, String petBreed, String petGender, String petWeight, String isNeutered, List<String> disease, List<String> allergy, int userId) throws BadRequestException {
+    public void updatePet(int petId, UpdatePetRequestDto dto, int userId) throws BadRequestException {
 
         Pets pet = new Pets();
 
-        String imgUrl = null;
-        if( petImg != null ){
-            imgUrl = uploadFile(petImg);
+        String imgUrl;
+        if( dto.getPetImg() != null ){
+            imgUrl = uploadFile(dto.getPetImg());
             pet.setPetImg(imgUrl);
         }
 
-        pet.setAnimal(Pets.Animal.valueOf(animal.toUpperCase()));
-        pet.setPetName(petName);
-        pet.setPetBreed(petBreed);
-        pet.setPetGender(Pets.Gender.valueOf(petGender.toUpperCase()));
-        pet.setPetWeight(Double.parseDouble(petWeight));
         pet.setUserId(userId);
-        pet.setIsNeutered(isNeutered);
+        pet.setAnimal(Pets.Animal.valueOf(dto.getAnimal().toUpperCase()));
+        pet.setPetName(dto.getPetName());
+        pet.setPetBreed(dto.getPetBreed());
+        pet.setPetGender(Pets.Gender.valueOf(dto.getPetGender().toUpperCase()));
+        pet.setPetWeight(Double.parseDouble(dto.getPetWeight()));
+        pet.setIsNeutered(dto.getIsNeutered());
 
 
-        try { // setBirth을 Date타입으로 바꾸기
-            LocalDate localDate = LocalDate.parse(petBirth, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            pet.setPetBirth(Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        try { // // setBirth을 Date타입으로 바꾸기
+            if (dto.getPetBirth() != null) {
+                pet.setPetBirth(dateFormat.parse(dto.getPetBirth()));
+            }
         } catch (Exception e) {
-            throw new BadRequestException("잘못된 날짜 형식입니다: " + petBirth);
+            throw new BadRequestException("잘못된 날짜 형식입니다: " + dto.getPetBirth());
         }
-
-        System.out.println("pet : " + pet.toString());
 
         petRepository.updatePet(petId, pet);
     }

@@ -7,9 +7,10 @@ import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
-public class CreatePetInfoRequestDto {
+public class UpdatePetRequestDto {
 
     @Nullable
     private MultipartFile petImg;
@@ -19,5 +20,11 @@ public class CreatePetInfoRequestDto {
     private String petBreed;
     private String petGender;
     private String petWeight;
+    @Nullable
+    private String isNeutered;
+    @Nullable
+    private List<String> disease;
+    @Nullable
+    private List<String> allergy ;
 
 }
