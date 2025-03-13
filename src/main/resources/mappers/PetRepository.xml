@@ -20,14 +20,16 @@
     <result column="updated_at" property="updatedAt"/>
     <result column="deleted_at" property="deletedAt"/>
   </resultMap>
+  <resultMap id="DiseaseResultMap" type="com.petlog.petService.domain.Pet_disease">
+    <result column="pet_id" property="petId"/>
+    <result column="disease_id" property="diseaseId"/>
+  </resultMap>
 
-  <!--펫 정보 저장-->
   <insert id="createPetInfo" parameterType="com.petlog.petService.domain.Pets" useGeneratedKeys="true" keyProperty="petId">
     INSERT INTO pets (user_id, pet_img, animal, pet_name, pet_birth, pet_gender, pet_breed, pet_weight)
     VALUES (#{userId}, #{petImg}, #{animal}, #{petName}, #{petBirth}, #{petGender}, #{petBreed}, #{petWeight})
   </insert>
 
-  <!-- userId로 등록된 반려동물 가져오기 -->
   <select id="getPetsById" parameterType="com.petlog.petService.domain.Pets" resultMap="PetResultMap">
     SELECT *
     FROM pets
@@ -35,7 +37,6 @@
         AND deleted_at IS NULL
   </select>
 
-  <!-- 펫 상세정보 가져오기 -->
   <select id="getPetDetail" parameterType="com.petlog.petService.domain.Pets" resultMap="PetResultMap">
     SELECT *
     FROM pets
@@ -45,7 +46,6 @@
     LIMIT 1
   </select>
 
-  <!-- 펫 삭제 -->
   <update id="deletePet" parameterType="com.petlog.petService.domain.Pets">
     UPDATE pets
     set deleted_at = NOW()
@@ -54,7 +54,6 @@
       AND deleted_at IS NULL
   </update>
 
-  <!-- 펫 수정 -->
   <update id="updatePet" parameterType="com.petlog.petService.domain.Pets">
     UPDATE pets
     set updated_at = NOW(),
@@ -72,5 +71,31 @@
       AND user_id = #{pet.userId}
       AND deleted_at IS NULL
   </update>
+
+  <delete id="deletePetDisease" parameterType="int">
+    DELETE FROM pet_disease
+    WHERE pet_id = #{petId};
+  </delete>
+
+  <insert id="insertPetDisease" parameterType="com.petlog.petService.domain.Pet_disease">
+    INSERT INTO pet_disease (pet_id, disease_id)
+    VALUES
+    <foreach collection="diseases" item="disease" separator=",">
+      (#{petId}, (SELECT id FROM disease WHERE disease_name = #{disease}))
+    </foreach>;
+  </insert>
+
+  <delete id="deletePetAllergy" parameterType="int">
+    DELETE FROM pet_allergy
+    WHERE pet_id = #{petId};
+  </delete>
+
+  <insert id="insertPetAllergy" parameterType="com.petlog.petService.domain.Pet_disease">
+    INSERT INTO pet_allergy (pet_id, allergy_id)
+    VALUES
+    <foreach collection="allergies" item="allergy" separator=",">
+      (#{petId}, (SELECT id FROM allergy WHERE allergy_name = #{allergy}))
+    </foreach>;
+  </insert>
 
 </mapper>

@@ -123,5 +123,11 @@ public class PetService {
         }
 
         petRepository.updatePet(petId, pet);
+
+        petRepository.deletePetDisease(petId);
+        petRepository.insertPetDisease(petId, dto.getDisease());
+
+        petRepository.deletePetAllergy(petId);
+        petRepository.insertPetAllergy(petId, dto.getAllergy());
     }
 }
