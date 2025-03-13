@@ -12,6 +12,7 @@
     <result column="animal" property="animal"/>
     <result column="pet_name" property="petName"/>
     <result column="pet_birth" property="petBirth"/>
+    <result column="pet_breed" property="petBreed"/>
     <result column="pet_gender" property="petGender"/>
     <result column="pet_weight" property="petWeight"/>
     <result column="isNeutered" property="isNeutered"/>
@@ -22,8 +23,8 @@
 
   <!--펫 정보 저장-->
   <insert id="createPetInfo" parameterType="com.petlog.petService.domain.Pets" useGeneratedKeys="true" keyProperty="petId">
-    INSERT INTO pets (user_id, pet_img, animal, pet_name, pet_birth, pet_gender, pet_weight)
-    VALUES (#{userId}, #{petImg}, #{animal}, #{petName}, #{petBirth}, #{petGender}, #{petWeight})
+    INSERT INTO pets (user_id, pet_img, animal, pet_name, pet_birth, pet_gender, pet_breed, pet_weight)
+    VALUES (#{userId}, #{petImg}, #{animal}, #{petName}, #{petBirth}, #{petGender}, #{petBreed}, #{petWeight})
   </insert>
 
   <!-- userId로 등록된 반려동물 가져오기 -->
@@ -63,6 +64,7 @@
         animal = #{pet.animal},
         pet_name = #{pet.petName},
         pet_birth = #{pet.petBirth},
+        pet_breed = #{pet.petBreed},
         pet_gender = #{pet.petGender},
         pet_weight = #{pet.petWeight},
         isNeutered = #{pet.isNeutered}
