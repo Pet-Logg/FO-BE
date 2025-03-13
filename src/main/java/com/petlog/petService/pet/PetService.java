@@ -47,7 +47,7 @@ public class PetService {
 
         try { // // setBirth을 Date타입으로 바꾸기
             if (dto.getPetBirth() != null) {
-                pet.setPetBirth(dateFormat.parse(dto.getPetBirth()));
+                pet.setPetBirth(LocalDate.parse(dto.getPetBirth()));
             }
         } catch (Exception e) {
             throw new BadRequestException("잘못된 날짜 형식입니다: " + dto.getPetBirth());
@@ -116,7 +116,7 @@ public class PetService {
 
         try { // // setBirth을 Date타입으로 바꾸기
             if (dto.getPetBirth() != null) {
-                pet.setPetBirth(dateFormat.parse(dto.getPetBirth()));
+                pet.setPetBirth(LocalDate.parse(dto.getPetBirth()));
             }
         } catch (Exception e) {
             throw new BadRequestException("잘못된 날짜 형식입니다: " + dto.getPetBirth());

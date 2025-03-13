@@ -1,10 +1,13 @@
 package com.petlog.petService.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.petlog.userService.domain.CommonEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -18,7 +21,7 @@ public class Pets extends CommonEntity {
     private String petImg;
     private Animal animal;
     private String petName;
-    private Date petBirth;
+    private LocalDate petBirth;
     private String petBreed; // 견종, 묘종
     private Gender petGender;
     private double petWeight;
