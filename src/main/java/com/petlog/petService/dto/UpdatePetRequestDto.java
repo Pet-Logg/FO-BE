@@ -7,7 +7,16 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @Data
-public class UpdatePetRequestDto extends CreatePetRequestDto{
+public class UpdatePetRequestDto {
+
+    private String petName;
+    @Nullable
+    private MultipartFile petImg;
+    private String animal;
+    private String petBirth;
+    private String petBreed;
+    private String petGender;
+    private double petWeight;
 
     @Nullable
     private String isNeutered;

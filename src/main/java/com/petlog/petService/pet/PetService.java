@@ -123,9 +123,14 @@ public class PetService {
         petRepository.updatePet(petId, pet);
 
         petRepository.deletePetDisease(petId);
-        petRepository.insertPetDisease(petId, dto.getDisease());
-
         petRepository.deletePetAllergy(petId);
-        petRepository.insertPetAllergy(petId, dto.getAllergy());
+
+        if(!dto.getDisease().isEmpty()){
+            petRepository.insertPetDisease(petId, dto.getDisease());
+        }
+        if(!dto.getAllergy().isEmpty()){
+            petRepository.insertPetAllergy(petId, dto.getAllergy());
+        }
+
     }
 }
