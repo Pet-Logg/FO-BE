@@ -4,8 +4,9 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.petlog.config.S3Config;
 import com.petlog.petService.domain.Pets;
-import com.petlog.petService.dto.CreatePetInfoRequestDto;
+import com.petlog.petService.dto.CreatePetRequestDto;
 import com.petlog.petService.dto.UpdatePetRequestDto;
+import com.petlog.petService.dto.UpdatePetResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
@@ -14,8 +15,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -29,7 +28,7 @@ public class PetService {
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     //펫 정보 등록
-    public int createPetInfo(CreatePetInfoRequestDto dto, int userId ) throws BadRequestException {
+    public int createPetInfo(CreatePetRequestDto dto, int userId ) throws BadRequestException {
 
         String imgUrl = null;
         if( dto.getPetImg() != null ){
@@ -42,7 +41,7 @@ public class PetService {
         pet.setPetName(dto.getPetName());
         pet.setPetBreed(dto.getPetBreed());
         pet.setPetGender(Pets.Gender.valueOf(dto.getPetGender().toUpperCase()));
-        pet.setPetWeight(Double.parseDouble(dto.getPetWeight()));
+        pet.setPetWeight(dto.getPetWeight());
         pet.setUserId(userId);
 
         try { // // setBirth을 Date타입으로 바꾸기
@@ -81,14 +80,13 @@ public class PetService {
         return pets;
     }
 
-    public Pets getPetDetail(int userId, int petId){
-        Pets pet = petRepository.getPetDetail(userId, petId);
+    public UpdatePetResponseDto getPetDetail(int userId, int petId){
 
-        if (pet == null) {
-            throw new RuntimeException("반려동물 정보를 찾을 수 없습니다.");
-        }
+        UpdatePetResponseDto dto = petRepository.getPetDetail(userId, petId);
+        System.out.println("dto.getPetName() : " + dto.getPetName());
+        System.out.println("dto.getDisease() : " + dto.getDisease());
 
-        return pet;
+        return dto;
     }
 
     public void deletePet(int userId, int petId) {
@@ -110,7 +108,7 @@ public class PetService {
         pet.setPetName(dto.getPetName());
         pet.setPetBreed(dto.getPetBreed());
         pet.setPetGender(Pets.Gender.valueOf(dto.getPetGender().toUpperCase()));
-        pet.setPetWeight(Double.parseDouble(dto.getPetWeight()));
+        pet.setPetWeight(dto.getPetWeight());
         pet.setIsNeutered(dto.getIsNeutered());
 
 

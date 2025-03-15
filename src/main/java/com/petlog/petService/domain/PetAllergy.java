@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Pet_allergy {
+public class PetAllergy {
     private int petId;
     private int allergyId;
 }

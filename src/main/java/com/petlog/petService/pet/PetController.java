@@ -1,8 +1,9 @@
 package com.petlog.petService.pet;
 
 import com.petlog.petService.domain.Pets;
-import com.petlog.petService.dto.CreatePetInfoRequestDto;
+import com.petlog.petService.dto.CreatePetRequestDto;
 import com.petlog.petService.dto.UpdatePetRequestDto;
+import com.petlog.petService.dto.UpdatePetResponseDto;
 import com.petlog.userService.dto.ResponseMessage;
 import com.petlog.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
@@ -11,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -26,7 +26,7 @@ public class PetController {
     // 펫 정보 등록
     @PostMapping("/createPetInfo")
     public ResponseEntity<ResponseMessage> createPetInfo (
-            CreatePetInfoRequestDto dto,
+            CreatePetRequestDto dto,
             HttpServletRequest request) throws BadRequestException {
 
         int userId = extractUserIdFromToken(request);
@@ -64,10 +64,10 @@ public class PetController {
 
         int userId = extractUserIdFromToken(request);
 
-        Pets pet = petService.getPetDetail(userId, petId);
+        UpdatePetResponseDto dto = petService.getPetDetail(userId, petId);
 
         ResponseMessage response = ResponseMessage.builder()
-                .data(pet)
+                .data(dto)
                 .statusCode(200)
                 .resultMessage("반려동물 가져오기 성공!")
                 .build();

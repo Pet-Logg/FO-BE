@@ -1,6 +1,7 @@
 package com.petlog.petService.pet;
 
 import com.petlog.petService.domain.Pets;
+import com.petlog.petService.dto.UpdatePetResponseDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -16,7 +17,7 @@ public interface PetRepository {
     List<Pets> getPetsById(@Param("userId") int userId);
 
     // 펫 상세정보 가져오기
-    Pets getPetDetail(@Param("userId") int userId, @Param("petId") int petId);
+    UpdatePetResponseDto getPetDetail(@Param("userId") int userId, @Param("petId") int petId);
 
     // 펫 삭제하기
     void deletePet(@Param("userId") int userId, @Param("petId") int petId);

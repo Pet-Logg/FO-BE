@@ -5,24 +5,32 @@
 
 <mapper namespace="com.petlog.petService.pet.PetRepository">
 
-  <resultMap id="PetResultMap" type="com.petlog.petService.domain.Pets">
+  <resultMap id="PetCommon" type="com.petlog.petService.domain.Pets">
     <id column="id" property="petId"/>  <!-- DB의 id를 petId 매핑 -->
     <result column="user_id" property="userId"/>
     <result column="pet_img" property="petImg"/>
-    <result column="animal" property="animal"/>
     <result column="pet_name" property="petName"/>
+    <result column="animal" property="animal"/>
     <result column="pet_birth" property="petBirth"/>
     <result column="pet_breed" property="petBreed"/>
     <result column="pet_gender" property="petGender"/>
     <result column="pet_weight" property="petWeight"/>
     <result column="isNeutered" property="isNeutered"/>
+  </resultMap>
+
+  <resultMap id="GetPetDetail" type="com.petlog.petService.domain.Pets" extends="PetCommon">
     <result column="created_at" property="createdAt"/>
     <result column="updated_at" property="updatedAt"/>
     <result column="deleted_at" property="deletedAt"/>
   </resultMap>
-  <resultMap id="DiseaseResultMap" type="com.petlog.petService.domain.Pet_disease">
-    <result column="pet_id" property="petId"/>
-    <result column="disease_id" property="diseaseId"/>
+
+  <resultMap id="UpdatePetResponseDto" type="com.petlog.petService.dto.UpdatePetResponseDto" extends="PetCommon">
+    <collection property="disease" ofType="java.lang.String">
+      <result column="disease_name"/>
+    </collection>
+    <collection property="allergy" ofType="java.lang.String">
+      <result column="allergy_name"/>
+    </collection>
   </resultMap>
 
   <insert id="createPetInfo" parameterType="com.petlog.petService.domain.Pets" useGeneratedKeys="true" keyProperty="petId">
@@ -30,20 +38,22 @@
     VALUES (#{userId}, #{petImg}, #{animal}, #{petName}, #{petBirth}, #{petGender}, #{petBreed}, #{petWeight})
   </insert>
 
-  <select id="getPetsById" parameterType="com.petlog.petService.domain.Pets" resultMap="PetResultMap">
+  <select id="getPetsById" parameterType="com.petlog.petService.domain.Pets" resultMap="GetPetDetail">
     SELECT *
     FROM pets
     WHERE user_id = #{userId}
         AND deleted_at IS NULL
   </select>
 
-  <select id="getPetDetail" parameterType="com.petlog.petService.domain.Pets" resultMap="PetResultMap">
-    SELECT *
-    FROM pets
-    WHERE user_id = #{userId}
-      AND id = #{petId}
-      AND deleted_at IS NULL
-    LIMIT 1
+  <select id="getPetDetail" parameterType="int" resultMap="UpdatePetResponseDto">
+    SELECT p.*, d.disease_name, a.allergy_name
+    FROM pets p
+    LEFT JOIN pet_disease pd ON p.id = pd.pet_id
+    LEFT JOIN disease d ON pd.disease_id = d.id
+    LEFT JOIN pet_allergy pa ON p.id = pa.pet_id
+    LEFT JOIN allergy a ON pa.allergy_id = a.id
+    WHERE p.user_id = #{userId}
+      AND p.id = #{petId}
   </select>
 
   <update id="deletePet" parameterType="com.petlog.petService.domain.Pets">
@@ -77,7 +87,7 @@
     WHERE pet_id = #{petId};
   </delete>
 
-  <insert id="insertPetDisease" parameterType="com.petlog.petService.domain.Pet_disease">
+  <insert id="insertPetDisease" parameterType="com.petlog.petService.domain.PetDisease">
     INSERT INTO pet_disease (pet_id, disease_id)
     VALUES
     <foreach collection="diseases" item="disease" separator=",">
@@ -90,7 +100,7 @@
     WHERE pet_id = #{petId};
   </delete>
 
-  <insert id="insertPetAllergy" parameterType="com.petlog.petService.domain.Pet_disease">
+  <insert id="insertPetAllergy" parameterType="com.petlog.petService.domain.PetDisease">
     INSERT INTO pet_allergy (pet_id, allergy_id)
     VALUES
     <foreach collection="allergies" item="allergy" separator=",">
