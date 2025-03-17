@@ -1,5 +1,7 @@
 package com.petlog.petService.pet;
 
+import com.petlog.petService.domain.Diary;
+import com.petlog.petService.domain.DiaryImages;
 import com.petlog.petService.domain.Pets;
 import com.petlog.petService.dto.UpdatePetResponseDto;
 import org.apache.ibatis.annotations.Mapper;
@@ -36,4 +38,10 @@ public interface PetRepository {
 
     // 펫-알러지 추가
     void insertPetAllergy(@Param("petId") int petId, List<String> allergies);
+
+    // 다이어리 등록
+    int createDiary(Diary diary);
+
+    // 다이어리 이미지 등록
+    void insertDiaryImage(DiaryImages diaryImages);
 }

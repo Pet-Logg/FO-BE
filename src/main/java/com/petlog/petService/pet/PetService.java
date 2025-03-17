@@ -3,7 +3,10 @@ package com.petlog.petService.pet;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.petlog.config.S3Config;
+import com.petlog.petService.domain.Diary;
+import com.petlog.petService.domain.DiaryImages;
 import com.petlog.petService.domain.Pets;
+import com.petlog.petService.dto.CreateDiaryRequestDto;
 import com.petlog.petService.dto.CreatePetRequestDto;
 import com.petlog.petService.dto.UpdatePetRequestDto;
 import com.petlog.petService.dto.UpdatePetResponseDto;
@@ -57,22 +60,6 @@ public class PetService {
         return pet.getPetId();
     }
 
-    public String uploadFile(MultipartFile file){
-        String bucketName = s3Config.getS3().getBucket();
-        String fileName = "uploads/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
-
-        try {
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentLength(file.getSize());
-            metadata.setContentType(file.getContentType());
-
-            amazonS3.putObject(bucketName, fileName, file.getInputStream(), metadata);
-            return amazonS3.getUrl(bucketName,fileName).toString(); // 업로드된 파일 URL 반환
-
-        } catch (IOException e){
-            throw new RuntimeException("파일 업로드 중 오류 발생", e);
-        }
-    }
 
     public List<Pets> getPetsById(int userId){
         List<Pets> pets = petRepository.getPetsById(userId);
@@ -83,8 +70,6 @@ public class PetService {
     public UpdatePetResponseDto getPetDetail(int userId, int petId){
 
         UpdatePetResponseDto dto = petRepository.getPetDetail(userId, petId);
-        System.out.println("dto.getPetName() : " + dto.getPetName());
-        System.out.println("dto.getDisease() : " + dto.getDisease());
 
         return dto;
     }
@@ -132,5 +117,48 @@ public class PetService {
             petRepository.insertPetAllergy(petId, dto.getAllergy());
         }
 
+    }
+
+    // 다이어리 생성
+    public void createDiary(int userId, CreateDiaryRequestDto dto) {
+
+        Diary diary = new Diary();
+
+        diary.setUserId(userId);
+        diary.setTitle(dto.getTitle());
+        diary.setContent(dto.getContent());
+
+        petRepository.createDiary(diary);
+        int diaryId = diary.getDiaryId(); // 자동생성된 다이어리 Id 가져오기
+
+        DiaryImages diaryImages = new DiaryImages();
+        diaryImages.setDiaryId(diaryId);
+
+        // 이미지 업로드 (서버 저장 후 DB에 URL 저장)
+        List<MultipartFile> images = dto.getImages();
+        if (images != null && !images.isEmpty()) {
+            for (MultipartFile image : images) {
+                String imgUrl = uploadFile(image); // 실제 이미지 저장 후 URL 반환
+                diaryImages.setImgUrl(imgUrl);
+                petRepository.insertDiaryImage(diaryImages);
+            }
+        }
+    }
+
+    public String uploadFile(MultipartFile file){
+        String bucketName = s3Config.getS3().getBucket();
+        String fileName = "uploads/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
+
+        try {
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(file.getSize());
+            metadata.setContentType(file.getContentType());
+
+            amazonS3.putObject(bucketName, fileName, file.getInputStream(), metadata);
+            return amazonS3.getUrl(bucketName,fileName).toString(); // 업로드된 파일 URL 반환
+
+        } catch (IOException e){
+            throw new RuntimeException("파일 업로드 중 오류 발생", e);
+        }
     }
 }

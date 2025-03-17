@@ -33,6 +33,13 @@
     </collection>
   </resultMap>
 
+  <resultMap id="createDiary" type="com.petlog.petService.domain.Diary">
+    <id column="id" property="diaryId"/>
+    <result column="user_id" property="userId"/>
+    <result column="title" property="title"/>
+    <result column="content" property="content"/>
+  </resultMap>
+
   <insert id="createPetInfo" parameterType="com.petlog.petService.domain.Pets" useGeneratedKeys="true" keyProperty="petId">
     INSERT INTO pets (user_id, pet_img, animal, pet_name, pet_birth, pet_gender, pet_breed, pet_weight)
     VALUES (#{userId}, #{petImg}, #{animal}, #{petName}, #{petBirth}, #{petGender}, #{petBreed}, #{petWeight})
@@ -106,6 +113,16 @@
     <foreach collection="allergies" item="allergy" separator=",">
       (#{petId}, (SELECT id FROM allergy WHERE allergy_name = #{allergy}))
     </foreach>;
+  </insert>
+
+  <insert id="createDiary" parameterType="com.petlog.petService.domain.Diary" useGeneratedKeys="true" keyProperty="diaryId">
+    INSERT INTO diary (user_id, title, content)
+    VALUES (#{userId}, #{title}, #{content})
+  </insert>
+
+  <insert id="insertDiaryImage" parameterType="com.petlog.petService.domain.DiaryImages" useGeneratedKeys="true" keyProperty="diaryImageId">
+    INSERT INTO diary_images (diary_id, img_url)
+    VALUES (#{diaryId}, #{imgUrl})
   </insert>
 
 </mapper>

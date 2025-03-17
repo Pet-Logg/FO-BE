@@ -1,6 +1,7 @@
 package com.petlog.petService.pet;
 
 import com.petlog.petService.domain.Pets;
+import com.petlog.petService.dto.CreateDiaryRequestDto;
 import com.petlog.petService.dto.CreatePetRequestDto;
 import com.petlog.petService.dto.UpdatePetRequestDto;
 import com.petlog.petService.dto.UpdatePetResponseDto;
@@ -105,6 +106,22 @@ public class PetController {
         ResponseMessage response = ResponseMessage.builder()
                 .statusCode(201)
                 .resultMessage("Pet update successfully")
+                .build();
+
+        return ResponseEntity.status(201).body(response);
+    }
+
+    // 펫 다이어리 등록
+    @PostMapping("/createDiary")
+    private ResponseEntity<ResponseMessage> createDiary (CreateDiaryRequestDto dto, HttpServletRequest request) {
+
+        int userId = extractUserIdFromToken(request);
+
+        petService.createDiary(userId, dto);
+
+        ResponseMessage response = ResponseMessage.builder()
+                .statusCode(201)
+                .resultMessage("Diary create successfully")
                 .build();
 
         return ResponseEntity.status(201).body(response);
