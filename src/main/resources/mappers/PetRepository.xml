@@ -5,45 +5,69 @@
 
 <mapper namespace="com.petlog.petService.pet.PetRepository">
 
-  <resultMap id="PetResultMap" type="com.petlog.petService.domain.Pets">
+  <resultMap id="PetCommon" type="com.petlog.petService.domain.Pets">
     <id column="id" property="petId"/>  <!-- DB의 id를 petId 매핑 -->
     <result column="user_id" property="userId"/>
     <result column="pet_img" property="petImg"/>
-    <result column="animal" property="animal"/>
     <result column="pet_name" property="petName"/>
+    <result column="animal" property="animal"/>
     <result column="pet_birth" property="petBirth"/>
+    <result column="pet_breed" property="petBreed"/>
     <result column="pet_gender" property="petGender"/>
     <result column="pet_weight" property="petWeight"/>
+    <result column="isNeutered" property="isNeutered"/>
+  </resultMap>
+
+  <resultMap id="GetPetDetail" type="com.petlog.petService.domain.Pets" extends="PetCommon">
     <result column="created_at" property="createdAt"/>
     <result column="updated_at" property="updatedAt"/>
     <result column="deleted_at" property="deletedAt"/>
   </resultMap>
 
-  <!--펫 정보 저장-->
+  <resultMap id="UpdatePetResponseDto" type="com.petlog.petService.dto.UpdatePetResponseDto" extends="PetCommon">
+    <collection property="disease" ofType="java.lang.String">
+      <result column="disease_name"/>
+    </collection>
+    <collection property="allergy" ofType="java.lang.String">
+      <result column="allergy_name"/>
+    </collection>
+  </resultMap>
+
+  <resultMap id="DiaryResult" type="com.petlog.petService.domain.Diary">
+    <id column="id" property="diaryId"/>
+    <result column="user_id" property="userId"/>
+    <result column="title" property="title"/>
+    <result column="content" property="content"/>
+    <result column="created_at" property="createdAt" />
+  </resultMap>
+
+  <resultMap id="DiaryImageResult" type="com.petlog.petService.dto.GetDiaryResponseDto" extends="DiaryResult">
+    <result column="img_url" property="imgUrl"/>
+  </resultMap>
+
   <insert id="createPetInfo" parameterType="com.petlog.petService.domain.Pets" useGeneratedKeys="true" keyProperty="petId">
-    INSERT INTO pets (user_id, pet_img, animal, pet_name, pet_birth, pet_gender, pet_weight)
-    VALUES (#{userId}, #{petImg}, #{animal}, #{petName}, #{petBirth}, #{petGender}, #{petWeight})
+    INSERT INTO pets (user_id, pet_img, animal, pet_name, pet_birth, pet_gender, pet_breed, pet_weight)
+    VALUES (#{userId}, #{petImg}, #{animal}, #{petName}, #{petBirth}, #{petGender}, #{petBreed}, #{petWeight})
   </insert>
 
-  <!-- userId로 등록된 반려동물 가져오기 -->
-  <select id="getPetsById" parameterType="com.petlog.petService.domain.Pets" resultMap="PetResultMap">
+  <select id="getPetsById" parameterType="com.petlog.petService.domain.Pets" resultMap="GetPetDetail">
     SELECT *
     FROM pets
     WHERE user_id = #{userId}
         AND deleted_at IS NULL
   </select>
 
-  <!-- 펫 상세정보 가져오기 -->
-  <select id="getPetDetail" parameterType="com.petlog.petService.domain.Pets" resultMap="PetResultMap">
-    SELECT *
-    FROM pets
-    WHERE user_id = #{userId}
-      AND id = #{petId}
-      AND deleted_at IS NULL
-    LIMIT 1
+  <select id="getPetDetail" parameterType="int" resultMap="UpdatePetResponseDto">
+    SELECT p.*, d.disease_name, a.allergy_name
+    FROM pets p
+    LEFT JOIN pet_disease pd ON p.id = pd.pet_id
+    LEFT JOIN disease d ON pd.disease_id = d.id
+    LEFT JOIN pet_allergy pa ON p.id = pa.pet_id
+    LEFT JOIN allergy a ON pa.allergy_id = a.id
+    WHERE p.user_id = #{userId}
+      AND p.id = #{petId}
   </select>
 
-  <!-- 펫 삭제 -->
   <update id="deletePet" parameterType="com.petlog.petService.domain.Pets">
     UPDATE pets
     set deleted_at = NOW()
@@ -51,5 +75,69 @@
       AND user_id = #{userId}
       AND deleted_at IS NULL
   </update>
+
+  <update id="updatePet" parameterType="com.petlog.petService.domain.Pets">
+    UPDATE pets
+    set updated_at = NOW(),
+        <if test="pet.petImg != null">
+          pet_img = #{pet.petImg},
+        </if>
+        animal = #{pet.animal},
+        pet_name = #{pet.petName},
+        pet_birth = #{pet.petBirth},
+        pet_breed = #{pet.petBreed},
+        pet_gender = #{pet.petGender},
+        pet_weight = #{pet.petWeight},
+        isNeutered = #{pet.isNeutered}
+    WHERE id = #{petId}
+      AND user_id = #{pet.userId}
+      AND deleted_at IS NULL
+  </update>
+
+  <delete id="deletePetDisease" parameterType="int">
+    DELETE FROM pet_disease
+    WHERE pet_id = #{petId};
+  </delete>
+
+  <insert id="insertPetDisease" parameterType="com.petlog.petService.domain.PetDisease">
+    INSERT INTO pet_disease (pet_id, disease_id)
+    VALUES
+    <foreach collection="diseases" item="disease" separator=",">
+      (#{petId}, (SELECT id FROM disease WHERE disease_name = #{disease}))
+    </foreach>;
+  </insert>
+
+  <delete id="deletePetAllergy" parameterType="int">
+    DELETE FROM pet_allergy
+    WHERE pet_id = #{petId};
+  </delete>
+
+  <insert id="insertPetAllergy" parameterType="com.petlog.petService.domain.PetDisease">
+    INSERT INTO pet_allergy (pet_id, allergy_id)
+    VALUES
+    <foreach collection="allergies" item="allergy" separator=",">
+      (#{petId}, (SELECT id FROM allergy WHERE allergy_name = #{allergy}))
+    </foreach>;
+  </insert>
+
+  <insert id="createDiary" parameterType="com.petlog.petService.domain.Diary" useGeneratedKeys="true" keyProperty="diaryId">
+    INSERT INTO diary (user_id, title, content)
+    VALUES (#{userId}, #{title}, #{content})
+  </insert>
+
+  <insert id="insertDiaryImage" parameterType="com.petlog.petService.domain.DiaryImages" useGeneratedKeys="true" keyProperty="diaryImageId">
+    INSERT INTO diary_images (diary_id, img_url)
+    VALUES (#{diaryId}, #{imgUrl})
+  </insert>
+
+  <select id="getDiaryById" parameterType="int" resultMap="DiaryImageResult">
+    SELECT d.*, MIN(di.img_url) AS img_url
+    FROM diary d
+    LEFT JOIN diary_images di ON d.id = di.diary_id
+    WHERE user_id = #{userId}
+      AND deleted_at IS NULL
+    GROUP BY
+      d.id
+  </select>
 
 </mapper>
