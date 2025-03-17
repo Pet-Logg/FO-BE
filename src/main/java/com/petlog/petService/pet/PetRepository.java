@@ -44,4 +44,7 @@ public interface PetRepository {
 
     // 다이어리 이미지 등록
     void insertDiaryImage(DiaryImages diaryImages);
+
+    // 다이어리 목록 가져오기
+    List<Diary> getDiaryById(int userId);
 }

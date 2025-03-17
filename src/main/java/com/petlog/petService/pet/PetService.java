@@ -145,6 +145,11 @@ public class PetService {
         }
     }
 
+    public List<Diary> getDiaryById(int userId){
+
+        return petRepository.getDiaryById(userId);
+    }
+
     public String uploadFile(MultipartFile file){
         String bucketName = s3Config.getS3().getBucket();
         String fileName = "uploads/" + UUID.randomUUID() + "_" + file.getOriginalFilename();

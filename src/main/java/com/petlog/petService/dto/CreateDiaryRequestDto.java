@@ -1,6 +1,5 @@
 package com.petlog.petService.dto;
 
-import io.micrometer.common.lang.Nullable;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 

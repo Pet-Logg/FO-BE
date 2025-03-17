@@ -1,5 +1,6 @@
 package com.petlog.petService.pet;
 
+import com.petlog.petService.domain.Diary;
 import com.petlog.petService.domain.Pets;
 import com.petlog.petService.dto.CreateDiaryRequestDto;
 import com.petlog.petService.dto.CreatePetRequestDto;
@@ -126,6 +127,24 @@ public class PetController {
 
         return ResponseEntity.status(201).body(response);
     }
+
+    // userId에 등록된 다이어리 가져오기
+    @GetMapping("/getDiaryById")
+    private ResponseEntity<ResponseMessage> getDiaryById (HttpServletRequest request) {
+
+        int userId = extractUserIdFromToken(request);
+
+        List<Diary> diary = petService.getDiaryById(userId);
+
+        ResponseMessage response = ResponseMessage.builder()
+                .data(diary)
+                .statusCode(201)
+                .resultMessage("Diary create successfully")
+                .build();
+
+        return ResponseEntity.status(201).body(response);
+    }
+
 
     // 토큰에서 유저 아이디 반환
     private int extractUserIdFromToken(HttpServletRequest request) {

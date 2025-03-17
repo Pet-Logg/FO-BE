@@ -33,11 +33,16 @@
     </collection>
   </resultMap>
 
-  <resultMap id="createDiary" type="com.petlog.petService.domain.Diary">
+  <resultMap id="DiaryResult" type="com.petlog.petService.domain.Diary">
     <id column="id" property="diaryId"/>
     <result column="user_id" property="userId"/>
     <result column="title" property="title"/>
     <result column="content" property="content"/>
+    <result column="created_at" property="createdAt" />
+  </resultMap>
+
+  <resultMap id="DiaryImageResult" type="com.petlog.petService.dto.GetDiaryResponseDto" extends="DiaryResult">
+    <result column="img_url" property="imgUrl"/>
   </resultMap>
 
   <insert id="createPetInfo" parameterType="com.petlog.petService.domain.Pets" useGeneratedKeys="true" keyProperty="petId">
@@ -124,5 +129,15 @@
     INSERT INTO diary_images (diary_id, img_url)
     VALUES (#{diaryId}, #{imgUrl})
   </insert>
+
+  <select id="getDiaryById" parameterType="int" resultMap="DiaryImageResult">
+    SELECT d.*, MIN(di.img_url) AS img_url
+    FROM diary d
+    LEFT JOIN diary_images di ON d.id = di.diary_id
+    WHERE user_id = #{userId}
+      AND deleted_at IS NULL
+    GROUP BY
+      d.id
+  </select>
 
 </mapper>
