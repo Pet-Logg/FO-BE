@@ -145,6 +145,23 @@ public class PetController {
         return ResponseEntity.status(201).body(response);
     }
 
+    @GetMapping("/getDiaryDetailById/{diaryId}")
+    private ResponseEntity<ResponseMessage> getDiaryDetailById (@PathVariable("diaryId") int diaryId, HttpServletRequest request) {
+
+        int userId = extractUserIdFromToken(request);
+
+        List<Diary> diary = petService.getDiaryDetailById(userId, diaryId);
+
+        ResponseMessage response = ResponseMessage.builder()
+                .data(diary)
+                .statusCode(201)
+                .resultMessage("Diary create successfully")
+                .build();
+
+        return ResponseEntity.status(201).body(response);
+
+    }
+
 
     // 토큰에서 유저 아이디 반환
     private int extractUserIdFromToken(HttpServletRequest request) {

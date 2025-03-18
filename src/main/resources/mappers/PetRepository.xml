@@ -140,4 +140,13 @@
       AND deleted_at IS NULL
   </select>
 
+  <select id="getDiaryDetailById" parameterType="int" resultMap="DiaryImageResult">
+    SELECT d.*, di.img_url
+    FROM diary d
+           LEFT JOIN diary_images di ON d.id = di.diary_id
+    WHERE d.user_id = #{userId}
+      AND d.id = #{diaryId}
+      AND deleted_at IS NULL
+  </select>
+
 </mapper>

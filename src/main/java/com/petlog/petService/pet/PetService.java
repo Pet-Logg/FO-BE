@@ -150,6 +150,10 @@ public class PetService {
         return petRepository.getDiaryById(userId);
     }
 
+    public List<Diary> getDiaryDetailById(int userId, int diaryId){
+        return petRepository.getDiaryDetailById(userId, diaryId);
+    }
+
     public String uploadFile(MultipartFile file){
         String bucketName = s3Config.getS3().getBucket();
         String fileName = "uploads/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
@@ -166,4 +170,5 @@ public class PetService {
             throw new RuntimeException("파일 업로드 중 오류 발생", e);
         }
     }
+
 }
