@@ -26,4 +26,17 @@
     VALUES (#{email}, #{password}, #{role})
   </insert>
 
+  <select id="findByUserId" resultMap="UserResultMap">
+    SELECT *
+    FROM users
+    WHERE id = #{userId}
+  </select>
+
+  <update id="savePassword" parameterType="com.petlog.userService.domain.Users">
+    UPDATE users
+    SET password = #{password}
+    WHERE id = #{userId}
+      AND deleted_at IS NULL
+  </update>
+
 </mapper>

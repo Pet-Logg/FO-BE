@@ -10,4 +10,8 @@ import java.util.Optional;
 public interface UserRepository {
     Optional<Users> findByEmail(@Param("email") String email);
     int createUser(Users user);
+
+    Optional<Users> findByUserId(@Param("userId") int userId);
+
+    void savePassword (Users user);
 }
