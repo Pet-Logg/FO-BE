@@ -1,7 +1,7 @@
 package com.petlog.petService.pet;
 
-import com.petlog.petService.domain.Diary;
-import com.petlog.petService.domain.Pets;
+import com.petlog.petService.entity.Diary;
+import com.petlog.petService.entity.Pets;
 import com.petlog.petService.dto.CreateDiaryRequestDto;
 import com.petlog.petService.dto.CreatePetRequestDto;
 import com.petlog.petService.dto.UpdatePetRequestDto;

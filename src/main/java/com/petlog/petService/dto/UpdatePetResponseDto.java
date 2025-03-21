@@ -1,6 +1,6 @@
 package com.petlog.petService.dto;
 
-import com.petlog.petService.domain.Pets;
+import com.petlog.petService.entity.Pets;
 import io.micrometer.common.lang.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Data;

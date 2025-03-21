@@ -1,8 +1,8 @@
 package com.petlog.petService.pet;
 
-import com.petlog.petService.domain.Diary;
-import com.petlog.petService.domain.DiaryImages;
-import com.petlog.petService.domain.Pets;
+import com.petlog.petService.entity.Diary;
+import com.petlog.petService.entity.DiaryImages;
+import com.petlog.petService.entity.Pets;
 import com.petlog.petService.dto.UpdatePetResponseDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;

@@ -1,4 +1,4 @@
-package com.petlog.petService.domain;
+package com.petlog.petService.entity;
 
 import com.petlog.common.domain.CommonEntity;
 import lombok.AllArgsConstructor;

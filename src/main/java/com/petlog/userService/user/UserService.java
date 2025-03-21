@@ -1,11 +1,10 @@
 package com.petlog.userService.user;
 
-import com.petlog.userService.domain.Users;
+import com.petlog.userService.entity.Users;
 import com.petlog.userService.dto.ChangePasswordRequestDto;
 import com.petlog.userService.dto.UserCommonDto;
 import com.petlog.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.User;
 import org.apache.coyote.BadRequestException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

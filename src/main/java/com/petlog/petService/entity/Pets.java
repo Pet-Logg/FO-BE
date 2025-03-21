@@ -1,15 +1,11 @@
-package com.petlog.petService.domain;
+package com.petlog.petService.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.petlog.userService.domain.CommonEntity;
+import com.petlog.userService.entity.CommonEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
 
 @Data
 @AllArgsConstructor

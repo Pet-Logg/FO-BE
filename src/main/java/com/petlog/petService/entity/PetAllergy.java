@@ -1,4 +1,4 @@
-package com.petlog.petService.domain;
+package com.petlog.petService.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Allergy {
+public class PetAllergy {
+    private int petId;
     private int allergyId;
-    private String allergyName;
 }

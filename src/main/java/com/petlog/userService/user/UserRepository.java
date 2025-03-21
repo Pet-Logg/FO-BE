@@ -1,6 +1,6 @@
 package com.petlog.userService.user;
 
-import com.petlog.userService.domain.Users;
+import com.petlog.userService.entity.Users;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
