@@ -1,6 +1,6 @@
 package com.petlog.petService.entity;
 
-import com.petlog.common.domain.CommonEntity;
+import com.petlog.common.entity.CommonEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
