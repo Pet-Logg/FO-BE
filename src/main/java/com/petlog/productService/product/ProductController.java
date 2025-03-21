@@ -11,6 +11,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/product")
 @RequiredArgsConstructor
@@ -19,19 +21,6 @@ public class ProductController {
     private final ProductService productService;
     private final JwtUtil jwtUtil;
 
-    //  // 모든 상품 조회
-//    @GetMapping("/products")
-//    public ResponseEntity<ResponseMessage> getAllProducts() {
-//        List<Product> products = productService.getAllProducts();
-//        ResponseMessage response = ResponseMessage.builder()
-//                .data(products)
-//                .statusCode(200)
-//                .resultMessage("Success")
-//                .build();
-//        return ResponseEntity.ok(response);
-//    }
-//
-//
     // 제품 생성
     @PostMapping
     public ResponseEntity<ResponseMessage> createProduct(@ModelAttribute CreateProductDto createProductDto, HttpServletRequest request) {
@@ -47,6 +36,22 @@ public class ProductController {
                 .resultMessage("Product created successfully")
                 .build();
         return ResponseEntity.status(201).body(response);
+    }
+
+    // 모든 상품 조회
+    @GetMapping
+    public ResponseEntity<ResponseMessage> getAllProducts() {
+
+        List<Products> products = productService.getAllProducts();
+
+        System.out.println("products : " + products);
+
+        ResponseMessage response = ResponseMessage.builder()
+                .data(products)
+                .statusCode(200)
+                .resultMessage("Success")
+                .build();
+        return ResponseEntity.ok(response);
     }
 //
 //

@@ -4,6 +4,8 @@ import com.petlog.productService.entity.ProductImages;
 import com.petlog.productService.entity.Products;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 @Mapper
 public interface ProductRepository {
 
@@ -11,4 +13,5 @@ public interface ProductRepository {
 
     void insertProductImage(ProductImages productImg);
 
+    List<Products> getAllProducts();
 }

@@ -10,15 +10,18 @@
   <resultMap id="ProductResultMap" type="com.petlog.productService.entity.Products">
     <id column="id" property="productId"/>  <!-- DB의 id를 userId로 매핑 -->
     <result column="user_id" property="userId"/>
+    <result column="name" property="name"/>
+    <result column="price" property="price"/>
+    <result column="quantity" property="quantity"/>
     <result column="created_at" property="createdAt"/>
     <result column="updated_at" property="updatedAt"/>
     <result column="deleted_at" property="deletedAt"/>
   </resultMap>
 
-  <resultMap id="" type="com.petlog.productService.entity.ProductImages">
-    <id column="id" property="productImageId"/>
-    <result column="product_id" property="productId"/>
-    <result column="imgUrl" property="img_url"/>
+  <resultMap id="getAllProductsResultMap" type="com.petlog.productService.dto.getProductsResponseDto" extends="ProductResultMap">
+    <collection property="imgUrl" ofType="java.lang.String">
+      <result column="img_url"/>
+    </collection>
   </resultMap>
 
   <insert id="createProduct" parameterType="com.petlog.productService.entity.Products" useGeneratedKeys="true" keyProperty="productId">
@@ -31,5 +34,12 @@
     INSERT INTO product_images (product_id, img_url)
     VALUES (#{productId}, #{imgUrl})
   </insert>
+
+  <select id="getAllProducts" resultMap="getAllProductsResultMap">
+    SELECT p.*, pi.img_url
+      FROM products p
+    LEFT JOIN product_images pi ON p.id = pi.product_id
+    WHERE deleted_at IS NULL
+  </select>
 
 </mapper>

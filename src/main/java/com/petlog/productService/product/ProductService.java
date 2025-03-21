@@ -49,10 +49,9 @@ public class ProductService {
         }
     }
 
-//
-//    public List<Product> getAllProducts() {
-//        return productRepository.findAll();
-//    }
+    public List<Products> getAllProducts() {
+        return productRepository.getAllProducts();
+    }
 //
 //
 //    public void updateStock(CreateOrderDto createOrderDto) {
