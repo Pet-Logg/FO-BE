@@ -18,7 +18,7 @@
     <result column="deleted_at" property="deletedAt"/>
   </resultMap>
 
-  <resultMap id="getAllProductsResultMap" type="com.petlog.productService.dto.getProductsResponseDto" extends="ProductResultMap">
+  <resultMap id="getProductsResultMap" type="com.petlog.productService.dto.getProductsResponseDto" extends="ProductResultMap">
     <collection property="imgUrl" ofType="java.lang.String">
       <result column="img_url"/>
     </collection>
@@ -35,11 +35,19 @@
     VALUES (#{productId}, #{imgUrl})
   </insert>
 
-  <select id="getAllProducts" resultMap="getAllProductsResultMap">
+  <select id="getAllProducts" resultMap="getProductsResultMap">
     SELECT p.*, pi.img_url
-      FROM products p
-    LEFT JOIN product_images pi ON p.id = pi.product_id
+    FROM products p
+           LEFT JOIN product_images pi ON p.id = pi.product_id
     WHERE deleted_at IS NULL
+  </select>
+
+  <select id="getProductById" parameterType="int" resultMap="getProductsResultMap">
+    SELECT p.*, pi.img_url
+    FROM products p
+    LEFT JOIN product_images pi ON p.id = pi.product_id
+    WHERE p.id = #{productId}
+      AND deleted_at IS NULL
   </select>
 
 </mapper>

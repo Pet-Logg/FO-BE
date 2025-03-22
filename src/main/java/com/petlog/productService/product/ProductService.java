@@ -4,8 +4,10 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.petlog.config.S3Config;
 import com.petlog.productService.dto.CreateProductDto;
+import com.petlog.productService.dto.getProductsResponseDto;
 import com.petlog.productService.entity.ProductImages;
 import com.petlog.productService.entity.Products;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -49,8 +51,12 @@ public class ProductService {
         }
     }
 
-    public List<Products> getAllProducts() {
+    public List<getProductsResponseDto> getAllProducts() {
         return productRepository.getAllProducts();
+    }
+
+    public getProductsResponseDto getProductById(int productId) {
+        return productRepository.getProductById(productId);
     }
 //
 //
