@@ -7,7 +7,7 @@
 <!-- Mapper를 사용하는 Repository의 전체 경로 -->
 <mapper namespace="com.petlog.userService.user.UserRepository">
 
-  <resultMap id="UserResultMap" type="com.petlog.userService.domain.Users">
+  <resultMap id="UserResultMap" type="com.petlog.userService.entity.Users">
     <id column="id" property="userId"/>  <!-- DB의 id를 userId로 매핑 -->
       <result column="created_at" property="createdAt"/>
       <result column="updated_at" property="updatedAt"/>
@@ -21,9 +21,22 @@
     WHERE email = #{email}
   </select>
 
-  <insert id="createUser" parameterType="com.petlog.userService.domain.Users" useGeneratedKeys="true" keyProperty="userId">
+  <insert id="createUser" parameterType="com.petlog.userService.entity.Users" useGeneratedKeys="true" keyProperty="userId">
     INSERT INTO users (email, password, role)
     VALUES (#{email}, #{password}, #{role})
   </insert>
+
+  <select id="findByUserId" resultMap="UserResultMap">
+    SELECT *
+    FROM users
+    WHERE id = #{userId}
+  </select>
+
+  <update id="savePassword" parameterType="com.petlog.userService.entity.Users">
+    UPDATE users
+    SET password = #{password}
+    WHERE id = #{userId}
+      AND deleted_at IS NULL
+  </update>
 
 </mapper>

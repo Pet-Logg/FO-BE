@@ -1,6 +1,7 @@
 package com.petlog.userService.user;
 
-import com.petlog.userService.domain.Users;
+import com.petlog.userService.entity.Users;
+import com.petlog.userService.dto.ChangePasswordRequestDto;
 import com.petlog.userService.dto.UserCommonDto;
 import com.petlog.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -41,12 +42,6 @@ public class UserService {
         return user.getUserId();
     }
 
-    // 비밀번호 유효성 검사
-    private boolean isPasswordValid(String password) {
-        String passwordPattern = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*?_])[A-Za-z\\d!@#$%^&*?_]{8,16}$";
-        return password.matches(passwordPattern);
-    }
-
     // 로그인
     public String login(UserCommonDto userCommonDto) throws BadRequestException {
 
@@ -67,11 +62,41 @@ public class UserService {
         throw new BadRequestException("아이디 또는 비밀번호가 잘못되었습니다.");
     }
 
+    // 회원 비밀번호 수정
+    public void changePassword(int userId, ChangePasswordRequestDto dto) throws BadRequestException {
+        Optional<Users> optionalUser = userRepository.findByUserId(userId);
+
+        if (optionalUser.isPresent()) {
+            Users user = optionalUser.get();
+
+            if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
+                // 비밀번호 검증
+                String password = dto.getPassword();
+                if (!isPasswordValid(password)) {
+                    throw new BadRequestException("Password does not meet the security requirements");
+                }
+
+                user.setPassword(passwordEncoder.encode(dto.getPassword()));  // 비밀번호 암호화
+            }
+
+            System.out.println("user : " + user);
+            userRepository.savePassword(user);
+
+        } else {
+            throw new RuntimeException("User not found with id " + userId);
+        }
+    }
+
     // 이메일 존재 확인
     public Optional<Users> idCheck(String email) {
         return userRepository.findByEmail(email);
     }
 
+    // 비밀번호 유효성 검사
+    private boolean isPasswordValid(String password) {
+        String passwordPattern = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*?_])[A-Za-z\\d!@#$%^&*?_]{8,16}$";
+        return password.matches(passwordPattern);
+    }
 
 }
 

@@ -1,4 +1,4 @@
-package com.petlog.petService.domain;
+package com.petlog.userService.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Disease {
-    private int diseaseId;
-    private String diseaseName;
+public class ChangePasswordRequestDto {
+    private String password;
 }

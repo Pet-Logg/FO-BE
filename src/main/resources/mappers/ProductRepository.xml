@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!-- mapper 설정 하는 코드 -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Mapper를 사용하는 Repository의 전체 경로 -->
+<mapper namespace="com.petlog.productService.product.ProductRepository">
+
+  <resultMap id="ProductResultMap" type="com.petlog.productService.entity.Products">
+    <id column="id" property="productId"/>  <!-- DB의 id를 userId로 매핑 -->
+    <result column="user_id" property="userId"/>
+    <result column="name" property="name"/>
+    <result column="price" property="price"/>
+    <result column="quantity" property="quantity"/>
+    <result column="created_at" property="createdAt"/>
+    <result column="updated_at" property="updatedAt"/>
+    <result column="deleted_at" property="deletedAt"/>
+  </resultMap>
+
+  <resultMap id="getAllProductsResultMap" type="com.petlog.productService.dto.getProductsResponseDto" extends="ProductResultMap">
+    <collection property="imgUrl" ofType="java.lang.String">
+      <result column="img_url"/>
+    </collection>
+  </resultMap>
+
+  <insert id="createProduct" parameterType="com.petlog.productService.entity.Products" useGeneratedKeys="true" keyProperty="productId">
+    INSERT INTO products (user_id, name, price, quantity)
+    VALUES (#{userId}, #{name}, #{price}, #{quantity} )
+  </insert>
+
+
+  <insert id="insertProductImage" parameterType="com.petlog.productService.entity.ProductImages" useGeneratedKeys="true" keyProperty="productImageId">
+    INSERT INTO product_images (product_id, img_url)
+    VALUES (#{productId}, #{imgUrl})
+  </insert>
+
+  <select id="getAllProducts" resultMap="getAllProductsResultMap">
+    SELECT p.*, pi.img_url
+      FROM products p
+    LEFT JOIN product_images pi ON p.id = pi.product_id
+    WHERE deleted_at IS NULL
+  </select>
+
+</mapper>

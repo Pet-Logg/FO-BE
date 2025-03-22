@@ -1,7 +1,7 @@
 package com.petlog.petService.pet;
 
-import com.petlog.petService.domain.Diary;
-import com.petlog.petService.domain.Pets;
+import com.petlog.petService.entity.Diary;
+import com.petlog.petService.entity.Pets;
 import com.petlog.petService.dto.CreateDiaryRequestDto;
 import com.petlog.petService.dto.CreatePetRequestDto;
 import com.petlog.petService.dto.UpdatePetRequestDto;
@@ -143,6 +143,23 @@ public class PetController {
                 .build();
 
         return ResponseEntity.status(201).body(response);
+    }
+
+    @GetMapping("/getDiaryDetailById/{diaryId}")
+    private ResponseEntity<ResponseMessage> getDiaryDetailById (@PathVariable("diaryId") int diaryId, HttpServletRequest request) {
+
+        int userId = extractUserIdFromToken(request);
+
+        List<Diary> diary = petService.getDiaryDetailById(userId, diaryId);
+
+        ResponseMessage response = ResponseMessage.builder()
+                .data(diary)
+                .statusCode(201)
+                .resultMessage("Diary create successfully")
+                .build();
+
+        return ResponseEntity.status(201).body(response);
+
     }
 
 

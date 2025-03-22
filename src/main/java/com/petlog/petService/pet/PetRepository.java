@@ -1,8 +1,8 @@
 package com.petlog.petService.pet;
 
-import com.petlog.petService.domain.Diary;
-import com.petlog.petService.domain.DiaryImages;
-import com.petlog.petService.domain.Pets;
+import com.petlog.petService.entity.Diary;
+import com.petlog.petService.entity.DiaryImages;
+import com.petlog.petService.entity.Pets;
 import com.petlog.petService.dto.UpdatePetResponseDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -47,4 +47,7 @@ public interface PetRepository {
 
     // 다이어리 목록 가져오기
     List<Diary> getDiaryById(int userId);
+
+    // 다이어리 상세 가져오기
+    List<Diary> getDiaryDetailById(int userId, int diaryId);
 }

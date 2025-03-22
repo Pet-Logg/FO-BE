@@ -3,9 +3,9 @@ package com.petlog.petService.pet;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.petlog.config.S3Config;
-import com.petlog.petService.domain.Diary;
-import com.petlog.petService.domain.DiaryImages;
-import com.petlog.petService.domain.Pets;
+import com.petlog.petService.entity.Diary;
+import com.petlog.petService.entity.DiaryImages;
+import com.petlog.petService.entity.Pets;
 import com.petlog.petService.dto.CreateDiaryRequestDto;
 import com.petlog.petService.dto.CreatePetRequestDto;
 import com.petlog.petService.dto.UpdatePetRequestDto;
@@ -150,6 +150,10 @@ public class PetService {
         return petRepository.getDiaryById(userId);
     }
 
+    public List<Diary> getDiaryDetailById(int userId, int diaryId){
+        return petRepository.getDiaryDetailById(userId, diaryId);
+    }
+
     public String uploadFile(MultipartFile file){
         String bucketName = s3Config.getS3().getBucket();
         String fileName = "uploads/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
@@ -166,4 +170,5 @@ public class PetService {
             throw new RuntimeException("파일 업로드 중 오류 발생", e);
         }
     }
+
 }

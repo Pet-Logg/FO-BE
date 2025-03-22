@@ -5,7 +5,7 @@
 
 <mapper namespace="com.petlog.petService.pet.PetRepository">
 
-  <resultMap id="PetCommon" type="com.petlog.petService.domain.Pets">
+  <resultMap id="PetCommon" type="com.petlog.petService.entity.Pets">
     <id column="id" property="petId"/>  <!-- DB의 id를 petId 매핑 -->
     <result column="user_id" property="userId"/>
     <result column="pet_img" property="petImg"/>
@@ -18,7 +18,7 @@
     <result column="isNeutered" property="isNeutered"/>
   </resultMap>
 
-  <resultMap id="GetPetDetail" type="com.petlog.petService.domain.Pets" extends="PetCommon">
+  <resultMap id="GetPetDetail" type="com.petlog.petService.entity.Pets" extends="PetCommon">
     <result column="created_at" property="createdAt"/>
     <result column="updated_at" property="updatedAt"/>
     <result column="deleted_at" property="deletedAt"/>
@@ -33,7 +33,7 @@
     </collection>
   </resultMap>
 
-  <resultMap id="DiaryResult" type="com.petlog.petService.domain.Diary">
+  <resultMap id="DiaryResult" type="com.petlog.petService.entity.Diary">
     <id column="id" property="diaryId"/>
     <result column="user_id" property="userId"/>
     <result column="title" property="title"/>
@@ -42,15 +42,17 @@
   </resultMap>
 
   <resultMap id="DiaryImageResult" type="com.petlog.petService.dto.GetDiaryResponseDto" extends="DiaryResult">
-    <result column="img_url" property="imgUrl"/>
+    <collection property="imgUrl" ofType="java.lang.String">
+      <result column="img_url"/>
+    </collection>
   </resultMap>
 
-  <insert id="createPetInfo" parameterType="com.petlog.petService.domain.Pets" useGeneratedKeys="true" keyProperty="petId">
+  <insert id="createPetInfo" parameterType="com.petlog.petService.entity.Pets" useGeneratedKeys="true" keyProperty="petId">
     INSERT INTO pets (user_id, pet_img, animal, pet_name, pet_birth, pet_gender, pet_breed, pet_weight)
     VALUES (#{userId}, #{petImg}, #{animal}, #{petName}, #{petBirth}, #{petGender}, #{petBreed}, #{petWeight})
   </insert>
 
-  <select id="getPetsById" parameterType="com.petlog.petService.domain.Pets" resultMap="GetPetDetail">
+  <select id="getPetsById" parameterType="com.petlog.petService.entity.Pets" resultMap="GetPetDetail">
     SELECT *
     FROM pets
     WHERE user_id = #{userId}
@@ -68,7 +70,7 @@
       AND p.id = #{petId}
   </select>
 
-  <update id="deletePet" parameterType="com.petlog.petService.domain.Pets">
+  <update id="deletePet" parameterType="com.petlog.petService.entity.Pets">
     UPDATE pets
     set deleted_at = NOW()
     WHERE id = #{petId}
@@ -76,7 +78,7 @@
       AND deleted_at IS NULL
   </update>
 
-  <update id="updatePet" parameterType="com.petlog.petService.domain.Pets">
+  <update id="updatePet" parameterType="com.petlog.petService.entity.Pets">
     UPDATE pets
     set updated_at = NOW(),
         <if test="pet.petImg != null">
@@ -99,7 +101,7 @@
     WHERE pet_id = #{petId};
   </delete>
 
-  <insert id="insertPetDisease" parameterType="com.petlog.petService.domain.PetDisease">
+  <insert id="insertPetDisease" parameterType="com.petlog.petService.entity.PetDisease">
     INSERT INTO pet_disease (pet_id, disease_id)
     VALUES
     <foreach collection="diseases" item="disease" separator=",">
@@ -112,7 +114,7 @@
     WHERE pet_id = #{petId};
   </delete>
 
-  <insert id="insertPetAllergy" parameterType="com.petlog.petService.domain.PetDisease">
+  <insert id="insertPetAllergy" parameterType="com.petlog.petService.entity.PetDisease">
     INSERT INTO pet_allergy (pet_id, allergy_id)
     VALUES
     <foreach collection="allergies" item="allergy" separator=",">
@@ -120,24 +122,31 @@
     </foreach>;
   </insert>
 
-  <insert id="createDiary" parameterType="com.petlog.petService.domain.Diary" useGeneratedKeys="true" keyProperty="diaryId">
+  <insert id="createDiary" parameterType="com.petlog.petService.entity.Diary" useGeneratedKeys="true" keyProperty="diaryId">
     INSERT INTO diary (user_id, title, content)
     VALUES (#{userId}, #{title}, #{content})
   </insert>
 
-  <insert id="insertDiaryImage" parameterType="com.petlog.petService.domain.DiaryImages" useGeneratedKeys="true" keyProperty="diaryImageId">
+  <insert id="insertDiaryImage" parameterType="com.petlog.petService.entity.DiaryImages" useGeneratedKeys="true" keyProperty="diaryImageId">
     INSERT INTO diary_images (diary_id, img_url)
     VALUES (#{diaryId}, #{imgUrl})
   </insert>
 
   <select id="getDiaryById" parameterType="int" resultMap="DiaryImageResult">
-    SELECT d.*, MIN(di.img_url) AS img_url
+    SELECT d.*, di.img_url
     FROM diary d
     LEFT JOIN diary_images di ON d.id = di.diary_id
     WHERE user_id = #{userId}
       AND deleted_at IS NULL
-    GROUP BY
-      d.id
+  </select>
+
+  <select id="getDiaryDetailById" parameterType="int" resultMap="DiaryImageResult">
+    SELECT d.*, di.img_url
+    FROM diary d
+           LEFT JOIN diary_images di ON d.id = di.diary_id
+    WHERE d.user_id = #{userId}
+      AND d.id = #{diaryId}
+      AND deleted_at IS NULL
   </select>
 
 </mapper>

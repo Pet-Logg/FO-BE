@@ -1,4 +1,4 @@
-package com.petlog.petService.domain;
+package com.petlog.petService.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

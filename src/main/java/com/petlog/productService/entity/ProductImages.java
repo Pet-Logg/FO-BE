@@ -1,4 +1,4 @@
-package com.petlog.petService.domain;
+package com.petlog.productService.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,9 +7,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DiaryImages {
+public class ProductImages {
 
-    private int diaryImageId;
-    private int diaryId;
+    private int productImageId;
+    private int productId;
     private String imgUrl;
 }
