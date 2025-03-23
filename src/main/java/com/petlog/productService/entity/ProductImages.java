@@ -12,4 +12,5 @@ public class ProductImages {
     private int productImageId;
     private int productId;
     private String imgUrl;
+    private String s3Key; // S3 내부 파일 경로
 }

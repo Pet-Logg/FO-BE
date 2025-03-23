@@ -24,6 +24,13 @@
     </collection>
   </resultMap>
 
+  <resultMap id="productImgResultMap" type="com.petlog.productService.entity.ProductImages">
+    <id column="id" property="productImageId"/>
+    <result column="product_id" property="productId"/>
+    <result column="imgUrl" property="imgUrl" />
+    <result column="s3Key" property="s3Key"/>
+  </resultMap>
+
   <insert id="createProduct" parameterType="com.petlog.productService.entity.Products" useGeneratedKeys="true" keyProperty="productId">
     INSERT INTO products (user_id, name, price, quantity)
     VALUES (#{userId}, #{name}, #{price}, #{quantity} )
@@ -55,5 +62,29 @@
     set deleted_at = NOW()
     WHERE id = #{productId}
   </update>
+
+  <update id="updateProduct" parameterType="map">
+    UPDATE products
+    set name = #{name},
+        price = #{price},
+        quantity = #{quantity}
+    WHERE id = #{productId}
+  </update>
+
+  <select id="findS3KeysByProductId" resultType="string">
+    SELECT s3_key FROM product_images WHERE product_id = #{productId}
+  </select>
+
+  <delete id="deleteImgByProductId" parameterType="int">
+    DELETE FROM product_images WHERE product_id = #{productId}
+  </delete>
+
+  <insert id="insertProductImage2">
+    INSERT INTO product_images (product_id, img_url, s3_key)
+    VALUES
+    <foreach collection="list" item="img" separator=",">
+      (#{img.productId}, #{img.imgUrl}, #{img.s3Key})
+    </foreach>
+  </insert>
 
 </mapper>

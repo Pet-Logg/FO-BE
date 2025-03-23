@@ -1,6 +1,7 @@
 package com.petlog.productService.product;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.petlog.config.S3Config;
 import com.petlog.productService.dto.CreateProductDto;
@@ -11,11 +12,11 @@ import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -41,14 +42,30 @@ public class ProductService {
         productImg.setProductId(productId);
 
         // 이미지 업로드 (서버 저장 후 DB에 URL 저장)
-        List<MultipartFile> images = dto.getProductImg();
-        if (images != null && !images.isEmpty()) {
-            for (MultipartFile image : images) {
-                String imgUrl = uploadFile(image); // 실제 이미지 저장 후 URL 반환
-                productImg.setImgUrl(imgUrl);
-                productRepository.insertProductImage(productImg);
-            }
+//        List<MultipartFile> imageEntities = dto.getProductImg();
+//        if (imageEntities != null && !imageEntities.isEmpty()) {
+//            for (MultipartFile image : imageEntities) {
+//                String imgUrl = uploadFile(image); // 실제 이미지 저장 후 URL 반환
+//                productImg.setImgUrl(imgUrl);
+//                productRepository.insertProductImage(productImg);
+//            }
+//        }
+
+        // 3. 새 이미지 업로드 및 DB 저장
+        List<ProductImages> imageEntities = new ArrayList<>();
+        for (MultipartFile file : dto.getProductImg()) {
+            String s3Key = generateS3Key(productId, file.getOriginalFilename());
+            String url = uploadFileToS3(file, s3Key);
+
+            ProductImages image = new ProductImages();
+            image.setProductId(productId);
+            image.setImgUrl(url);
+            image.setS3Key(s3Key);
+
+            imageEntities.add(image);
         }
+        productRepository.insertProductImage2(imageEntities);
+
     }
 
     public List<getProductsResponseDto> getAllProducts() {
@@ -59,9 +76,51 @@ public class ProductService {
         return productRepository.getProductById(productId);
     }
 
+    @Transactional
     public void deleteProduct(int productId) {
         productRepository.deleteProduct(productId);
     }
+
+    public void updateProduct(int productId, CreateProductDto dto) {
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("productId", productId);
+        params.put("name", dto.getName());
+        params.put("price",dto.getPrice());
+        params.put("quantity", dto.getQuantity());
+
+        System.out.println("dto : " + dto);
+        // 1. 상품 업데이트
+        productRepository.updateProduct(params);
+        System.out.println("1 상품 업데이트 완료");
+
+        // 2. 기존 이미지 S3 삭제 및 DB 삭제
+        List<String> oldKeys = productRepository.findS3KeysByProductId(productId);
+        System.out.println("2. oldKeys : " + oldKeys);
+
+        deleteFiles(oldKeys);
+        System.out.println("2. deleteFiles 완료");
+
+        productRepository.deleteImgByProductId(productId);
+
+        System.out.println(".2. deleteImgByProductId 완료");
+
+        // 3. 새 이미지 업로드 및 DB 저장
+        List<ProductImages> imageEntities = new ArrayList<>();
+            for (MultipartFile file : dto.getProductImg()) {
+                String s3Key = generateS3Key(productId, file.getOriginalFilename());
+                String url = uploadFileToS3(file, s3Key);
+
+                ProductImages image = new ProductImages();
+                image.setProductId(productId);
+                image.setImgUrl(url);
+                image.setS3Key(s3Key);
+
+                imageEntities.add(image);
+            }
+        productRepository.insertProductImage2(imageEntities);
+    }
+
 //
 //    public void updateStock(CreateOrderDto createOrderDto) {
 //        log.info("Starting updateStock for productId: " + createOrderDto.getProductId());
@@ -103,18 +162,6 @@ public class ProductService {
 //    }
 //
 
-//
-//    public Product updateProduct(int id, PutProductDto putProductDto) {
-//        Product product = productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
-//        product.setName(putProductDto.getName());
-//        product.setPrice(putProductDto.getPrice());
-//        product.setDescription(putProductDto.getDescription());
-//        product.setExposeYsno(putProductDto.getExposeYsno());
-//        return productRepository.save(product);
-//    }
-//
-
-
     public String uploadFile(MultipartFile file){
         String bucketName = s3Config.getS3().getBucket();
         String fileName = "uploads/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
@@ -131,4 +178,36 @@ public class ProductService {
             throw new RuntimeException("파일 업로드 중 오류 발생", e);
         }
     }
+
+    public String uploadFileToS3(MultipartFile file, String s3Key) {
+        String bucketName = s3Config.getS3().getBucket();
+
+        try {
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(file.getSize());
+            metadata.setContentType(file.getContentType());
+
+            amazonS3.putObject(bucketName, s3Key, file.getInputStream(), metadata);
+            return amazonS3.getUrl(bucketName, s3Key).toString(); // 업로드된 파일 URL 반환
+        } catch (IOException e) {
+            throw new RuntimeException("파일 업로드 실패", e);
+        }
+    }
+
+    public String generateS3Key(int productId, String originalFilename) {
+        return "uploads/products/" + productId + "/" + UUID.randomUUID() + "_" + originalFilename;
+    }
+
+
+    public void deleteFiles(List<String> s3Keys) {
+        String bucketName = s3Config.getS3().getBucket();
+
+        if (s3Keys.isEmpty()) return;
+
+        DeleteObjectsRequest request = new DeleteObjectsRequest(bucketName)
+                .withKeys(s3Keys.toArray(new String[0]));
+
+        amazonS3.deleteObjects(request);
+    }
+
 }

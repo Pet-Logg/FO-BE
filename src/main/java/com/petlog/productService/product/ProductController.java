@@ -67,19 +67,21 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
-//
-//    @PutMapping("/{id}")
-//    public ResponseEntity<ResponseMessage> updateProduct(@PathVariable("id") int id, @RequestBody PutProductDto putProductDto) {
-//        Product updatedProduct = productService.updateProduct(id, putProductDto);
-//        ResponseMessage response = ResponseMessage.builder()
-//                .data(updatedProduct)
-//                .statusCode(200)
-//                .resultMessage("Product updated successfully")
-//                .build();
-//        return ResponseEntity.ok(response);
-//    }
-//
-//
+
+    @PutMapping("/{productId}")
+    public ResponseEntity<ResponseMessage> updateProduct(@PathVariable("productId") int productId, CreateProductDto dto) {
+
+        productService.updateProduct(productId, dto);
+
+        ResponseMessage response = ResponseMessage.builder()
+                .data(null)
+                .statusCode(200)
+                .resultMessage("Product updated successfully")
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+
     @DeleteMapping("/{productId}")
     public ResponseEntity<ResponseMessage> deleteProduct(@PathVariable("productId") int productId) {
 
