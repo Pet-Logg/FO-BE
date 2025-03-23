@@ -58,7 +58,10 @@ public class ProductService {
     public getProductsResponseDto getProductById(int productId) {
         return productRepository.getProductById(productId);
     }
-//
+
+    public void deleteProduct(int productId) {
+        productRepository.deleteProduct(productId);
+    }
 //
 //    public void updateStock(CreateOrderDto createOrderDto) {
 //        log.info("Starting updateStock for productId: " + createOrderDto.getProductId());
@@ -110,9 +113,7 @@ public class ProductService {
 //        return productRepository.save(product);
 //    }
 //
-//    public void deleteProduct(int id) {
-//        productRepository.deleteById(id);
-//    }
+
 
     public String uploadFile(MultipartFile file){
         String bucketName = s3Config.getS3().getBucket();

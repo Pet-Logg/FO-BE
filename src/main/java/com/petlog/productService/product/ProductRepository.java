@@ -22,4 +22,7 @@ public interface ProductRepository {
     // productId로 상품 조회
     getProductsResponseDto getProductById(int productId);
 
+    // 상품 삭제
+    void deleteProduct(int productId);
+
 }

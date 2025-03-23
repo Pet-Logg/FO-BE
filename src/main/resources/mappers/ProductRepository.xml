@@ -50,4 +50,10 @@
       AND deleted_at IS NULL
   </select>
 
+  <update id="deleteProduct" parameterType="int">
+    UPDATE products
+    set deleted_at = NOW()
+    WHERE id = #{productId}
+  </update>
+
 </mapper>

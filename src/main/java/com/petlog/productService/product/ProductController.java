@@ -80,15 +80,17 @@ public class ProductController {
 //    }
 //
 //
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity<ResponseMessage> deleteProduct(@PathVariable("id") int id) {
-//        productService.deleteProduct(id);
-//        ResponseMessage response = ResponseMessage.builder()
-//                .statusCode(200)
-//                .resultMessage("Product deleted successfully")
-//                .build();
-//        return ResponseEntity.ok(response);
-//    }
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<ResponseMessage> deleteProduct(@PathVariable("productId") int productId) {
+
+        productService.deleteProduct(productId);
+
+        ResponseMessage response = ResponseMessage.builder()
+                .statusCode(200)
+                .resultMessage("Product deleted successfully")
+                .build();
+        return ResponseEntity.ok(response);
+    }
 //
 //
 //    /**
@@ -157,23 +159,4 @@ public class ProductController {
         return userId;
     }
 
-    private String extractRoleFromToken(HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
-
-        if (token == null || !token.startsWith("Bearer ")) {
-            throw new RuntimeException("Missing or invalid Authorization header");
-        }
-
-        token = token.replace("Bearer ", ""); // "Bearer " 제거
-        Claims claims = jwtUtil.getUserInfoFromToken(token);
-
-        String role = (String) claims.get("role");
-
-        if (role == null) {
-            throw new RuntimeException("User Role not found in token claims");
-        }
-
-        return role;
-
-    }
 }
