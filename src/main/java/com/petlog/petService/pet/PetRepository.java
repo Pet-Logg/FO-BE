@@ -49,5 +49,5 @@ public interface PetRepository {
     List<Diary> getDiaryById(int userId);
 
     // 다이어리 상세 가져오기
-    List<Diary> getDiaryDetailById(int userId, int diaryId);
+    Diary getDiaryDetailById(int userId, int diaryId);
 }
