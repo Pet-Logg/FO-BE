@@ -150,7 +150,7 @@ public class PetController {
 
         int userId = extractUserIdFromToken(request);
 
-        List<Diary> diary = petService.getDiaryDetailById(userId, diaryId);
+        Diary diary = petService.getDiaryDetailById(userId, diaryId);
 
         ResponseMessage response = ResponseMessage.builder()
                 .data(diary)

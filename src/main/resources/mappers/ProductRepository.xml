@@ -18,10 +18,17 @@
     <result column="deleted_at" property="deletedAt"/>
   </resultMap>
 
-  <resultMap id="getAllProductsResultMap" type="com.petlog.productService.dto.getProductsResponseDto" extends="ProductResultMap">
+  <resultMap id="getProductsResultMap" type="com.petlog.productService.dto.getProductsResponseDto" extends="ProductResultMap">
     <collection property="imgUrl" ofType="java.lang.String">
       <result column="img_url"/>
     </collection>
+  </resultMap>
+
+  <resultMap id="productImgResultMap" type="com.petlog.productService.entity.ProductImages">
+    <id column="id" property="productImageId"/>
+    <result column="product_id" property="productId"/>
+    <result column="imgUrl" property="imgUrl" />
+    <result column="s3Key" property="s3Key"/>
   </resultMap>
 
   <insert id="createProduct" parameterType="com.petlog.productService.entity.Products" useGeneratedKeys="true" keyProperty="productId">
@@ -35,11 +42,49 @@
     VALUES (#{productId}, #{imgUrl})
   </insert>
 
-  <select id="getAllProducts" resultMap="getAllProductsResultMap">
+  <select id="getAllProducts" resultMap="getProductsResultMap">
     SELECT p.*, pi.img_url
-      FROM products p
-    LEFT JOIN product_images pi ON p.id = pi.product_id
+    FROM products p
+           LEFT JOIN product_images pi ON p.id = pi.product_id
     WHERE deleted_at IS NULL
   </select>
+
+  <select id="getProductById" parameterType="int" resultMap="getProductsResultMap">
+    SELECT p.*, pi.img_url
+    FROM products p
+    LEFT JOIN product_images pi ON p.id = pi.product_id
+    WHERE p.id = #{productId}
+      AND deleted_at IS NULL
+  </select>
+
+  <update id="deleteProduct" parameterType="int">
+    UPDATE products
+    set deleted_at = NOW()
+    WHERE id = #{productId}
+  </update>
+
+  <update id="updateProduct" parameterType="map">
+    UPDATE products
+    set name = #{name},
+        price = #{price},
+        quantity = #{quantity}
+    WHERE id = #{productId}
+  </update>
+
+  <select id="findS3KeysByProductId" resultType="string">
+    SELECT s3_key FROM product_images WHERE product_id = #{productId}
+  </select>
+
+  <delete id="deleteImgByProductId" parameterType="int">
+    DELETE FROM product_images WHERE product_id = #{productId}
+  </delete>
+
+  <insert id="insertProductImage2">
+    INSERT INTO product_images (product_id, img_url, s3_key)
+    VALUES
+    <foreach collection="list" item="img" separator=",">
+      (#{img.productId}, #{img.imgUrl}, #{img.s3Key})
+    </foreach>
+  </insert>
 
 </mapper>

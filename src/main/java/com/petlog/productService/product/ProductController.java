@@ -1,17 +1,19 @@
 package com.petlog.productService.product;
 
 import com.petlog.productService.dto.CreateProductDto;
+import com.petlog.productService.dto.getProductsResponseDto;
 import com.petlog.productService.entity.Products;
 import com.petlog.userService.dto.ResponseMessage;
 import com.petlog.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/product")
@@ -25,7 +27,6 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<ResponseMessage> createProduct(@ModelAttribute CreateProductDto createProductDto, HttpServletRequest request) {
 
-        System.out.println("createProductDto : " + createProductDto);
         int userId = extractUserIdFromToken(request);
 
         productService.createProduct(createProductDto, userId);
@@ -39,13 +40,11 @@ public class ProductController {
     }
 
     // 모든 상품 조회
-    @GetMapping
-    public ResponseEntity<ResponseMessage> getAllProducts() {
+    @GetMapping("/products")
+    public ResponseEntity<ResponseMessage> getAllProducts(HttpServletRequest request) {
 
-        List<Products> products = productService.getAllProducts();
-
+        List<getProductsResponseDto> products = productService.getAllProducts();
         System.out.println("products : " + products);
-
         ResponseMessage response = ResponseMessage.builder()
                 .data(products)
                 .statusCode(200)
@@ -53,29 +52,47 @@ public class ProductController {
                 .build();
         return ResponseEntity.ok(response);
     }
-//
-//
-//    @PutMapping("/{id}")
-//    public ResponseEntity<ResponseMessage> updateProduct(@PathVariable("id") int id, @RequestBody PutProductDto putProductDto) {
-//        Product updatedProduct = productService.updateProduct(id, putProductDto);
-//        ResponseMessage response = ResponseMessage.builder()
-//                .data(updatedProduct)
-//                .statusCode(200)
-//                .resultMessage("Product updated successfully")
-//                .build();
-//        return ResponseEntity.ok(response);
-//    }
-//
-//
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity<ResponseMessage> deleteProduct(@PathVariable("id") int id) {
-//        productService.deleteProduct(id);
-//        ResponseMessage response = ResponseMessage.builder()
-//                .statusCode(200)
-//                .resultMessage("Product deleted successfully")
-//                .build();
-//        return ResponseEntity.ok(response);
-//    }
+
+    // productId로 상품 조회
+    @GetMapping("/{productId}")
+    public ResponseEntity<ResponseMessage> getProductById(@PathVariable int productId) {
+
+        getProductsResponseDto product = productService.getProductById(productId);
+
+        ResponseMessage response = ResponseMessage.builder()
+                .statusCode(200)
+                .resultMessage("Success")
+                .data(product)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+
+    @PutMapping("/{productId}")
+    public ResponseEntity<ResponseMessage> updateProduct(@PathVariable("productId") int productId, CreateProductDto dto) {
+
+        productService.updateProduct(productId, dto);
+
+        ResponseMessage response = ResponseMessage.builder()
+                .data(null)
+                .statusCode(200)
+                .resultMessage("Product updated successfully")
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<ResponseMessage> deleteProduct(@PathVariable("productId") int productId) {
+
+        productService.deleteProduct(productId);
+
+        ResponseMessage response = ResponseMessage.builder()
+                .statusCode(200)
+                .resultMessage("Product deleted successfully")
+                .build();
+        return ResponseEntity.ok(response);
+    }
 //
 //
 //    /**
@@ -143,4 +160,5 @@ public class ProductController {
 
         return userId;
     }
+
 }

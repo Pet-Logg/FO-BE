@@ -150,7 +150,7 @@ public class PetService {
         return petRepository.getDiaryById(userId);
     }
 
-    public List<Diary> getDiaryDetailById(int userId, int diaryId){
+    public Diary getDiaryDetailById(int userId, int diaryId){
         return petRepository.getDiaryDetailById(userId, diaryId);
     }
 
