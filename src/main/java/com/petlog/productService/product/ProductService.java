@@ -4,11 +4,12 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.petlog.config.S3Config;
+import com.petlog.productService.dto.AddWishListRequestDto;
 import com.petlog.productService.dto.CreateProductDto;
-import com.petlog.productService.dto.getProductsResponseDto;
+import com.petlog.productService.dto.GetProductsResponseDto;
 import com.petlog.productService.entity.ProductImages;
 import com.petlog.productService.entity.Products;
-import io.jsonwebtoken.Claims;
+import com.petlog.productService.entity.WishList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -68,11 +69,11 @@ public class ProductService {
 
     }
 
-    public List<getProductsResponseDto> getAllProducts() {
+    public List<GetProductsResponseDto> getAllProducts() {
         return productRepository.getAllProducts();
     }
 
-    public getProductsResponseDto getProductById(int productId) {
+    public GetProductsResponseDto getProductById(int productId) {
         return productRepository.getProductById(productId);
     }
 
@@ -89,21 +90,13 @@ public class ProductService {
         params.put("price",dto.getPrice());
         params.put("quantity", dto.getQuantity());
 
-        System.out.println("dto : " + dto);
         // 1. 상품 업데이트
         productRepository.updateProduct(params);
-        System.out.println("1 상품 업데이트 완료");
 
         // 2. 기존 이미지 S3 삭제 및 DB 삭제
         List<String> oldKeys = productRepository.findS3KeysByProductId(productId);
-        System.out.println("2. oldKeys : " + oldKeys);
-
         deleteFiles(oldKeys);
-        System.out.println("2. deleteFiles 완료");
-
         productRepository.deleteImgByProductId(productId);
-
-        System.out.println(".2. deleteImgByProductId 완료");
 
         // 3. 새 이미지 업로드 및 DB 저장
         List<ProductImages> imageEntities = new ArrayList<>();
@@ -119,6 +112,17 @@ public class ProductService {
                 imageEntities.add(image);
             }
         productRepository.insertProductImage2(imageEntities);
+    }
+
+
+    public void addWishList(int userId, AddWishListRequestDto dto){
+        WishList wishList = new WishList();
+
+        wishList.setUserId(userId);
+        wishList.setProductId(dto.getProductId());
+        wishList.setQuantity(dto.getQuantity());
+
+        productRepository.addWishList(wishList);
     }
 
 //

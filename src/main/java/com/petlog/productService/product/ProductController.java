@@ -1,8 +1,8 @@
 package com.petlog.productService.product;
 
+import com.petlog.productService.dto.AddWishListRequestDto;
 import com.petlog.productService.dto.CreateProductDto;
-import com.petlog.productService.dto.getProductsResponseDto;
-import com.petlog.productService.entity.Products;
+import com.petlog.productService.dto.GetProductsResponseDto;
 import com.petlog.userService.dto.ResponseMessage;
 import com.petlog.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
@@ -11,9 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/product")
@@ -28,7 +26,6 @@ public class ProductController {
     public ResponseEntity<ResponseMessage> createProduct(@ModelAttribute CreateProductDto createProductDto, HttpServletRequest request) {
 
         int userId = extractUserIdFromToken(request);
-
         productService.createProduct(createProductDto, userId);
 
         ResponseMessage response = ResponseMessage.builder()
@@ -41,10 +38,10 @@ public class ProductController {
 
     // 모든 상품 조회
     @GetMapping("/products")
-    public ResponseEntity<ResponseMessage> getAllProducts(HttpServletRequest request) {
+    public ResponseEntity<ResponseMessage> getAllProducts() {
 
-        List<getProductsResponseDto> products = productService.getAllProducts();
-        System.out.println("products : " + products);
+        List<GetProductsResponseDto> products = productService.getAllProducts();
+
         ResponseMessage response = ResponseMessage.builder()
                 .data(products)
                 .statusCode(200)
@@ -57,7 +54,7 @@ public class ProductController {
     @GetMapping("/{productId}")
     public ResponseEntity<ResponseMessage> getProductById(@PathVariable int productId) {
 
-        getProductsResponseDto product = productService.getProductById(productId);
+        GetProductsResponseDto product = productService.getProductById(productId);
 
         ResponseMessage response = ResponseMessage.builder()
                 .statusCode(200)
@@ -86,6 +83,20 @@ public class ProductController {
     public ResponseEntity<ResponseMessage> deleteProduct(@PathVariable("productId") int productId) {
 
         productService.deleteProduct(productId);
+
+        ResponseMessage response = ResponseMessage.builder()
+                .statusCode(200)
+                .resultMessage("Product deleted successfully")
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/wishList")
+    public ResponseEntity<ResponseMessage> addWishList(@RequestBody AddWishListRequestDto dto, HttpServletRequest request){
+
+        int userId = extractUserIdFromToken(request);
+
+        productService.addWishList(userId, dto);
 
         ResponseMessage response = ResponseMessage.builder()
                 .statusCode(200)
@@ -146,7 +157,9 @@ public class ProductController {
         token = token.replace("Bearer ", ""); // "Bearer " 제거
         Claims claims = jwtUtil.getUserInfoFromToken(token); // JWT에서 클레임 가져오기
 
+        System.out.println("claims : " + claims);
         Object userIdObject = claims.get("userId");
+        System.out.println("userIdObject : " + userIdObject);
         if (userIdObject == null) {
             throw new RuntimeException("User ID not found in token claims");
         }

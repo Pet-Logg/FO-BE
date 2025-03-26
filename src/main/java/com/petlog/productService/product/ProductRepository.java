@@ -1,9 +1,9 @@
 package com.petlog.productService.product;
 
-import com.petlog.productService.dto.CreateProductDto;
-import com.petlog.productService.dto.getProductsResponseDto;
+import com.petlog.productService.dto.GetProductsResponseDto;
 import com.petlog.productService.entity.ProductImages;
 import com.petlog.productService.entity.Products;
+import com.petlog.productService.entity.WishList;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -19,10 +19,10 @@ public interface ProductRepository {
     void insertProductImage(ProductImages productImg);
 
     // 모든 상품 조회
-    List<getProductsResponseDto> getAllProducts();
+    List<GetProductsResponseDto> getAllProducts();
 
     // productId로 상품 조회
-    getProductsResponseDto getProductById(int productId);
+    GetProductsResponseDto getProductById(int productId);
 
     // 상품 삭제
     void deleteProduct(int productId);
@@ -35,4 +35,7 @@ public interface ProductRepository {
     void deleteImgByProductId(int productId);
 
     void insertProductImage2(List<ProductImages> imageEntities);
+
+    // 위시 리스트 추가
+    void addWishList(WishList wishList);
 }
