@@ -13,22 +13,12 @@
     <result column="name" property="name"/>
     <result column="price" property="price"/>
     <result column="quantity" property="quantity"/>
-    <result column="created_at" property="createdAt"/>
-    <result column="updated_at" property="updatedAt"/>
-    <result column="deleted_at" property="deletedAt"/>
   </resultMap>
 
-  <resultMap id="getProductsResultMap" type="com.petlog.productService.dto.getProductsResponseDto" extends="ProductResultMap">
+  <resultMap id="getProductsResultMap" type="com.petlog.productService.dto.GetProductsResponseDto" extends="ProductResultMap">
     <collection property="imgUrl" ofType="java.lang.String">
       <result column="img_url"/>
     </collection>
-  </resultMap>
-
-  <resultMap id="productImgResultMap" type="com.petlog.productService.entity.ProductImages">
-    <id column="id" property="productImageId"/>
-    <result column="product_id" property="productId"/>
-    <result column="imgUrl" property="imgUrl" />
-    <result column="s3Key" property="s3Key"/>
   </resultMap>
 
   <insert id="createProduct" parameterType="com.petlog.productService.entity.Products" useGeneratedKeys="true" keyProperty="productId">
@@ -43,14 +33,14 @@
   </insert>
 
   <select id="getAllProducts" resultMap="getProductsResultMap">
-    SELECT p.*, pi.img_url
+    SELECT p.id, p.user_id, p.name, p.price, p.quantity, pi.img_url
     FROM products p
            LEFT JOIN product_images pi ON p.id = pi.product_id
     WHERE deleted_at IS NULL
   </select>
 
   <select id="getProductById" parameterType="int" resultMap="getProductsResultMap">
-    SELECT p.*, pi.img_url
+    SELECT p.id, p.user_id, p.name, p.price, p.quantity, pi.img_url
     FROM products p
     LEFT JOIN product_images pi ON p.id = pi.product_id
     WHERE p.id = #{productId}
@@ -85,6 +75,11 @@
     <foreach collection="list" item="img" separator=",">
       (#{img.productId}, #{img.imgUrl}, #{img.s3Key})
     </foreach>
+  </insert>
+
+  <insert id="addWishList" parameterType="com.petlog.productService.entity.WishList">
+    INSERT INTO wishList (user_id, product_id, quantity)
+    VALUES (#{userId}, #{productId}, #{quantity})
   </insert>
 
 </mapper>

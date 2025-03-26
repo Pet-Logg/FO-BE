@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor // 매개변수 없는 생성자 만들어줌
 public class Users extends CommonEntity {
 
-    private int userId;
+    private int id;
 
     private String name;
 

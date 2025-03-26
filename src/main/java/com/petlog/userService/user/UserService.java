@@ -39,22 +39,22 @@ public class UserService {
         user.setRole(Users.Role.USER);
         user.setPassword(passwordEncoder.encode(userCommonDto.getPassword())); // 비밀번호 암호화
         userRepository.createUser(user);
-        return user.getUserId();
+        return user.getId();
     }
 
     // 로그인
     public String login(UserCommonDto userCommonDto) throws BadRequestException {
-
         Optional<Users> user = idCheck(userCommonDto.getEmail());
-        String token = null;
 
         if (user.isEmpty()) {
             throw new BadRequestException("아이디 또는 비밀번호가 잘못되었습니다.");
         }
 
+        String token = null;
+
         // 비밀번호 검증
         if (passwordEncoder.matches(userCommonDto.getPassword(), user.get().getPassword())) {
-            token = jwtUtil.createToken(user.get().getUserId(), user.get().getRole().toString());
+            token = jwtUtil.createToken(user.get().getId(), user.get().getRole().toString());
 
             return token;
         }
