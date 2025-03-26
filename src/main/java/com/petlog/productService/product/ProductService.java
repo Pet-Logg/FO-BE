@@ -7,6 +7,7 @@ import com.petlog.config.S3Config;
 import com.petlog.productService.dto.AddWishListRequestDto;
 import com.petlog.productService.dto.CreateProductDto;
 import com.petlog.productService.dto.GetProductsResponseDto;
+import com.petlog.productService.dto.GetWishListResponseDto;
 import com.petlog.productService.entity.ProductImages;
 import com.petlog.productService.entity.Products;
 import com.petlog.productService.entity.WishList;
@@ -123,6 +124,10 @@ public class ProductService {
         wishList.setQuantity(dto.getQuantity());
 
         productRepository.addWishList(wishList);
+    }
+
+    public List<GetWishListResponseDto> getWishList(int userId){
+         return productRepository.getWishList(userId);
     }
 
 //

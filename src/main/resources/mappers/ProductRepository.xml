@@ -21,6 +21,17 @@
     </collection>
   </resultMap>
 
+  <resultMap id="getWishListResultMap" type="com.petlog.productService.dto.GetWishListResponseDto" >
+    <id column="id" property="id"/>
+    <result column="product_id" property="productId"/>
+    <result column="name" property="name"/>
+    <result column="price" property="price"/>
+    <result column="quantity" property="quantity"/>
+    <collection property="imgUrl" ofType="java.lang.String">
+      <result column="img_url"/>
+    </collection>
+  </resultMap>
+
   <insert id="createProduct" parameterType="com.petlog.productService.entity.Products" useGeneratedKeys="true" keyProperty="productId">
     INSERT INTO products (user_id, name, price, quantity)
     VALUES (#{userId}, #{name}, #{price}, #{quantity} )
@@ -81,5 +92,13 @@
     INSERT INTO wishList (user_id, product_id, quantity)
     VALUES (#{userId}, #{productId}, #{quantity})
   </insert>
+
+  <select id="getWishList" parameterType="int" resultMap="getWishListResultMap">
+    SELECT w.id, w.product_id, p.name, p.price, w.quantity, pi.img_url
+    FROM wishList w
+     LEFT JOIN products p ON w.product_id = p.id
+     LEFT JOIN product_images pi ON p.id = pi.product_id
+    WHERE w.user_id = #{userId}
+  </select>
 
 </mapper>

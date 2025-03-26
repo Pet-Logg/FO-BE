@@ -3,6 +3,7 @@ package com.petlog.productService.product;
 import com.petlog.productService.dto.AddWishListRequestDto;
 import com.petlog.productService.dto.CreateProductDto;
 import com.petlog.productService.dto.GetProductsResponseDto;
+import com.petlog.productService.dto.GetWishListResponseDto;
 import com.petlog.userService.dto.ResponseMessage;
 import com.petlog.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
@@ -104,6 +105,22 @@ public class ProductController {
                 .build();
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/wishList")
+    public ResponseEntity<ResponseMessage> getWishList(HttpServletRequest request){
+
+        int userId = extractUserIdFromToken(request);
+
+        List<GetWishListResponseDto> wishList= productService.getWishList(userId);
+
+        ResponseMessage response = ResponseMessage.builder()
+                .data(wishList)
+                .statusCode(200)
+                .resultMessage("Product deleted successfully")
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
 //
 //
 //    /**
