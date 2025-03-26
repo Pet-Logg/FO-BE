@@ -3,7 +3,7 @@ package com.petlog.productService.dto;
 import lombok.Data;
 
 @Data
-public class AddWishListRequestDto {
+public class CartItemRequestDto {
     private int productId;
     private int quantity;
 }

@@ -1,11 +1,13 @@
 package com.petlog.productService.product;
 
+import com.petlog.productService.dto.CartItemRequestDto;
 import com.petlog.productService.dto.GetProductsResponseDto;
 import com.petlog.productService.dto.GetWishListResponseDto;
 import com.petlog.productService.entity.ProductImages;
 import com.petlog.productService.entity.Products;
-import com.petlog.productService.entity.WishList;
+import com.petlog.productService.entity.WishLists;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -38,8 +40,14 @@ public interface ProductRepository {
     void insertProductImage2(List<ProductImages> imageEntities);
 
     // 위시 리스트 추가
-    void addWishList(WishList wishList);
+    void addWishList(WishLists wishList);
 
     // 위시 리스트 조회
     List<GetWishListResponseDto> getWishList(int userId);
+
+    // 위시 리스트 수정
+    void updateWishList(
+            @Param("dto") CartItemRequestDto dto,
+            @Param("userId") int userId
+    );
 }

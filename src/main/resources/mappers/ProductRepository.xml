@@ -88,17 +88,24 @@
     </foreach>
   </insert>
 
-  <insert id="addWishList" parameterType="com.petlog.productService.entity.WishList">
-    INSERT INTO wishList (user_id, product_id, quantity)
+  <insert id="addWishList" parameterType="com.petlog.productService.entity.WishLists">
+    INSERT INTO wishLists (user_id, product_id, quantity)
     VALUES (#{userId}, #{productId}, #{quantity})
   </insert>
 
   <select id="getWishList" parameterType="int" resultMap="getWishListResultMap">
     SELECT w.id, w.product_id, p.name, p.price, w.quantity, pi.img_url
-    FROM wishList w
+    FROM wishLists w
      LEFT JOIN products p ON w.product_id = p.id
      LEFT JOIN product_images pi ON p.id = pi.product_id
     WHERE w.user_id = #{userId}
   </select>
+
+  <update id="updateWishList">
+    UPDATE wishLists
+       SET quantity = #{dto.quantity}
+    WHERE product_id = #{dto.productId}
+      AND user_id = #{userId}
+  </update>
 
 </mapper>

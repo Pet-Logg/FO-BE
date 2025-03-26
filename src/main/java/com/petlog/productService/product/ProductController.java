@@ -1,9 +1,6 @@
 package com.petlog.productService.product;
 
-import com.petlog.productService.dto.AddWishListRequestDto;
-import com.petlog.productService.dto.CreateProductDto;
-import com.petlog.productService.dto.GetProductsResponseDto;
-import com.petlog.productService.dto.GetWishListResponseDto;
+import com.petlog.productService.dto.*;
 import com.petlog.userService.dto.ResponseMessage;
 import com.petlog.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
@@ -93,7 +90,7 @@ public class ProductController {
     }
 
     @PostMapping("/wishList")
-    public ResponseEntity<ResponseMessage> addWishList(@RequestBody AddWishListRequestDto dto, HttpServletRequest request){
+    public ResponseEntity<ResponseMessage> addsWishList(@RequestBody CartItemRequestDto dto, HttpServletRequest request){
 
         int userId = extractUserIdFromToken(request);
 
@@ -115,6 +112,20 @@ public class ProductController {
 
         ResponseMessage response = ResponseMessage.builder()
                 .data(wishList)
+                .statusCode(200)
+                .resultMessage("Product deleted successfully")
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/wishList")
+    public ResponseEntity<ResponseMessage> updateWishList(@RequestBody CartItemRequestDto dto, HttpServletRequest request){
+
+        int userId = extractUserIdFromToken(request);
+        productService.updateWishList(dto, userId);
+
+        ResponseMessage response = ResponseMessage.builder()
+                .data(null)
                 .statusCode(200)
                 .resultMessage("Product deleted successfully")
                 .build();
@@ -174,9 +185,7 @@ public class ProductController {
         token = token.replace("Bearer ", ""); // "Bearer " 제거
         Claims claims = jwtUtil.getUserInfoFromToken(token); // JWT에서 클레임 가져오기
 
-        System.out.println("claims : " + claims);
         Object userIdObject = claims.get("userId");
-        System.out.println("userIdObject : " + userIdObject);
         if (userIdObject == null) {
             throw new RuntimeException("User ID not found in token claims");
         }

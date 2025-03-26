@@ -4,13 +4,10 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.petlog.config.S3Config;
-import com.petlog.productService.dto.AddWishListRequestDto;
-import com.petlog.productService.dto.CreateProductDto;
-import com.petlog.productService.dto.GetProductsResponseDto;
-import com.petlog.productService.dto.GetWishListResponseDto;
+import com.petlog.productService.dto.*;
 import com.petlog.productService.entity.ProductImages;
 import com.petlog.productService.entity.Products;
-import com.petlog.productService.entity.WishList;
+import com.petlog.productService.entity.WishLists;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -116,8 +113,8 @@ public class ProductService {
     }
 
 
-    public void addWishList(int userId, AddWishListRequestDto dto){
-        WishList wishList = new WishList();
+    public void addWishList(int userId, CartItemRequestDto dto){
+        WishLists wishList = new WishLists();
 
         wishList.setUserId(userId);
         wishList.setProductId(dto.getProductId());
@@ -128,6 +125,10 @@ public class ProductService {
 
     public List<GetWishListResponseDto> getWishList(int userId){
          return productRepository.getWishList(userId);
+    }
+
+    public void updateWishList(CartItemRequestDto dto, int userId){
+        productRepository.updateWishList(dto, userId);
     }
 
 //
