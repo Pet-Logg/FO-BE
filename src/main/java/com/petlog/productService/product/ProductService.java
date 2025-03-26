@@ -131,6 +131,10 @@ public class ProductService {
         productRepository.updateWishList(dto, userId);
     }
 
+    public void deleteWishList(DeleteWishListRequestDto dto, int userId){
+        productRepository.deleteWishList(dto, userId);
+    }
+
 //
 //    public void updateStock(CreateOrderDto createOrderDto) {
 //        log.info("Starting updateStock for productId: " + createOrderDto.getProductId());

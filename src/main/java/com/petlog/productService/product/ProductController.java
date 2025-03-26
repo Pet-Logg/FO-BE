@@ -132,6 +132,21 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
+    @DeleteMapping("/wishList")
+    public ResponseEntity<ResponseMessage> deleteWishList(@RequestBody DeleteWishListRequestDto dto, HttpServletRequest request){
+
+        System.out.println("dto : " + dto);
+        int userId = extractUserIdFromToken(request);
+        productService.deleteWishList(dto, userId);
+
+        ResponseMessage response = ResponseMessage.builder()
+                .data(null)
+                .statusCode(200)
+                .resultMessage("Product deleted successfully")
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
 //
 //
 //    /**

@@ -108,4 +108,13 @@
       AND user_id = #{userId}
   </update>
 
+  <delete id="deleteWishList">
+    DELETE FROM wishLists
+    WHERE id IN
+    <foreach collection="dto.selectedItems" item="wishListId" open="(" separator="," close=")">
+        #{wishListId}
+    </foreach>
+      AND user_id = #{userId}
+  </delete>
+
 </mapper>

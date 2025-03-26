@@ -1,6 +1,7 @@
 package com.petlog.productService.product;
 
 import com.petlog.productService.dto.CartItemRequestDto;
+import com.petlog.productService.dto.DeleteWishListRequestDto;
 import com.petlog.productService.dto.GetProductsResponseDto;
 import com.petlog.productService.dto.GetWishListResponseDto;
 import com.petlog.productService.entity.ProductImages;
@@ -49,5 +50,9 @@ public interface ProductRepository {
     void updateWishList(
             @Param("dto") CartItemRequestDto dto,
             @Param("userId") int userId
+    );
+
+    void deleteWishList(@Param("dto") DeleteWishListRequestDto dto,
+                        @Param("userId") int userId
     );
 }
