@@ -1,8 +1,6 @@
 package com.petlog.productService.product;
 
-import com.petlog.productService.dto.CreateProductDto;
-import com.petlog.productService.dto.getProductsResponseDto;
-import com.petlog.productService.entity.Products;
+import com.petlog.productService.dto.*;
 import com.petlog.userService.dto.ResponseMessage;
 import com.petlog.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
@@ -11,9 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/product")
@@ -28,7 +24,6 @@ public class ProductController {
     public ResponseEntity<ResponseMessage> createProduct(@ModelAttribute CreateProductDto createProductDto, HttpServletRequest request) {
 
         int userId = extractUserIdFromToken(request);
-
         productService.createProduct(createProductDto, userId);
 
         ResponseMessage response = ResponseMessage.builder()
@@ -41,10 +36,10 @@ public class ProductController {
 
     // 모든 상품 조회
     @GetMapping("/products")
-    public ResponseEntity<ResponseMessage> getAllProducts(HttpServletRequest request) {
+    public ResponseEntity<ResponseMessage> getAllProducts() {
 
-        List<getProductsResponseDto> products = productService.getAllProducts();
-        System.out.println("products : " + products);
+        List<GetProductsResponseDto> products = productService.getAllProducts();
+
         ResponseMessage response = ResponseMessage.builder()
                 .data(products)
                 .statusCode(200)
@@ -57,7 +52,7 @@ public class ProductController {
     @GetMapping("/{productId}")
     public ResponseEntity<ResponseMessage> getProductById(@PathVariable int productId) {
 
-        getProductsResponseDto product = productService.getProductById(productId);
+        GetProductsResponseDto product = productService.getProductById(productId);
 
         ResponseMessage response = ResponseMessage.builder()
                 .statusCode(200)
@@ -93,6 +88,65 @@ public class ProductController {
                 .build();
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/wishList")
+    public ResponseEntity<ResponseMessage> addsWishList(@RequestBody CartItemRequestDto dto, HttpServletRequest request){
+
+        int userId = extractUserIdFromToken(request);
+
+        productService.addWishList(userId, dto);
+
+        ResponseMessage response = ResponseMessage.builder()
+                .statusCode(200)
+                .resultMessage("Product deleted successfully")
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/wishList")
+    public ResponseEntity<ResponseMessage> getWishList(HttpServletRequest request){
+
+        int userId = extractUserIdFromToken(request);
+
+        List<GetWishListResponseDto> wishList= productService.getWishList(userId);
+
+        ResponseMessage response = ResponseMessage.builder()
+                .data(wishList)
+                .statusCode(200)
+                .resultMessage("Product deleted successfully")
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/wishList")
+    public ResponseEntity<ResponseMessage> updateWishList(@RequestBody CartItemRequestDto dto, HttpServletRequest request){
+
+        int userId = extractUserIdFromToken(request);
+        productService.updateWishList(dto, userId);
+
+        ResponseMessage response = ResponseMessage.builder()
+                .data(null)
+                .statusCode(200)
+                .resultMessage("Product deleted successfully")
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/wishList")
+    public ResponseEntity<ResponseMessage> deleteWishList(@RequestBody DeleteWishListRequestDto dto, HttpServletRequest request){
+
+        System.out.println("dto : " + dto);
+        int userId = extractUserIdFromToken(request);
+        productService.deleteWishList(dto, userId);
+
+        ResponseMessage response = ResponseMessage.builder()
+                .data(null)
+                .statusCode(200)
+                .resultMessage("Product deleted successfully")
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
 //
 //
 //    /**

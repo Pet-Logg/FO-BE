@@ -13,22 +13,23 @@
     <result column="name" property="name"/>
     <result column="price" property="price"/>
     <result column="quantity" property="quantity"/>
-    <result column="created_at" property="createdAt"/>
-    <result column="updated_at" property="updatedAt"/>
-    <result column="deleted_at" property="deletedAt"/>
   </resultMap>
 
-  <resultMap id="getProductsResultMap" type="com.petlog.productService.dto.getProductsResponseDto" extends="ProductResultMap">
+  <resultMap id="getProductsResultMap" type="com.petlog.productService.dto.GetProductsResponseDto" extends="ProductResultMap">
     <collection property="imgUrl" ofType="java.lang.String">
       <result column="img_url"/>
     </collection>
   </resultMap>
 
-  <resultMap id="productImgResultMap" type="com.petlog.productService.entity.ProductImages">
-    <id column="id" property="productImageId"/>
+  <resultMap id="getWishListResultMap" type="com.petlog.productService.dto.GetWishListResponseDto" >
+    <id column="id" property="id"/>
     <result column="product_id" property="productId"/>
-    <result column="imgUrl" property="imgUrl" />
-    <result column="s3Key" property="s3Key"/>
+    <result column="name" property="name"/>
+    <result column="price" property="price"/>
+    <result column="quantity" property="quantity"/>
+    <collection property="imgUrl" ofType="java.lang.String">
+      <result column="img_url"/>
+    </collection>
   </resultMap>
 
   <insert id="createProduct" parameterType="com.petlog.productService.entity.Products" useGeneratedKeys="true" keyProperty="productId">
@@ -43,14 +44,14 @@
   </insert>
 
   <select id="getAllProducts" resultMap="getProductsResultMap">
-    SELECT p.*, pi.img_url
+    SELECT p.id, p.user_id, p.name, p.price, p.quantity, pi.img_url
     FROM products p
            LEFT JOIN product_images pi ON p.id = pi.product_id
     WHERE deleted_at IS NULL
   </select>
 
   <select id="getProductById" parameterType="int" resultMap="getProductsResultMap">
-    SELECT p.*, pi.img_url
+    SELECT p.id, p.user_id, p.name, p.price, p.quantity, pi.img_url
     FROM products p
     LEFT JOIN product_images pi ON p.id = pi.product_id
     WHERE p.id = #{productId}
@@ -86,5 +87,34 @@
       (#{img.productId}, #{img.imgUrl}, #{img.s3Key})
     </foreach>
   </insert>
+
+  <insert id="addWishList" parameterType="com.petlog.productService.entity.WishLists">
+    INSERT INTO wishLists (user_id, product_id, quantity)
+    VALUES (#{userId}, #{productId}, #{quantity})
+  </insert>
+
+  <select id="getWishList" parameterType="int" resultMap="getWishListResultMap">
+    SELECT w.id, w.product_id, p.name, p.price, w.quantity, pi.img_url
+    FROM wishLists w
+     LEFT JOIN products p ON w.product_id = p.id
+     LEFT JOIN product_images pi ON p.id = pi.product_id
+    WHERE w.user_id = #{userId}
+  </select>
+
+  <update id="updateWishList">
+    UPDATE wishLists
+       SET quantity = #{dto.quantity}
+    WHERE product_id = #{dto.productId}
+      AND user_id = #{userId}
+  </update>
+
+  <delete id="deleteWishList">
+    DELETE FROM wishLists
+    WHERE id IN
+    <foreach collection="dto.selectedItems" item="wishListId" open="(" separator="," close=")">
+        #{wishListId}
+    </foreach>
+      AND user_id = #{userId}
+  </delete>
 
 </mapper>
