@@ -135,7 +135,6 @@ public class ProductController {
     @DeleteMapping("/wishList")
     public ResponseEntity<ResponseMessage> deleteWishList(@RequestBody DeleteWishListRequestDto dto, HttpServletRequest request){
 
-        System.out.println("dto : " + dto);
         int userId = extractUserIdFromToken(request);
         productService.deleteWishList(dto, userId);
 
