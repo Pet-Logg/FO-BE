@@ -31,4 +31,21 @@
       AND deleted_at IS NULL
   </update>
 
+  <insert id="saveRefreshToken" >
+    INSERT INTO tokens (user_id, refresh_token)
+    VALUES (#{userId}, #{refreshToken})
+  </insert>
+
+  <select id="findRefreshToken" parameterType="String" resultType="com.petlog.userService.dto.RefreshResponseDto">
+    SELECT t.refresh_token AS refreshToken, t.user_id, u.role
+      FROM tokens t
+      LEFT JOIN users u ON t.user_id = u.id
+    WHERE t.refresh_token = #{refreshToken}
+  </select>
+
+  <delete id="deleteToken" parameterType="int">
+    DELETE FROM tokens
+    WHERE user_id = #{userId};
+  </delete>
+
 </mapper>
