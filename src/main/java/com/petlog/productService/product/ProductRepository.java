@@ -20,8 +20,7 @@ public interface ProductRepository {
     void createProduct(Products product);
 
     // 상품 이미지 등록
-    void insertProductImage(ProductImages productImg);
-
+    void insertProductImage(List<ProductImages> imageEntities);
     // 모든 상품 조회
     List<GetProductsResponseDto> getAllProducts();
 
@@ -34,9 +33,14 @@ public interface ProductRepository {
     // 상품 수정
     void updateProduct(Map<String, Object> params);
 
+    // S3 이미지 키 조
     List<String> findS3KeysByProductId(int productId);
 
+    // productId로 이미지 삭제하기
     void deleteImgByProductId(int productId);
+
+    // S3Key로 상품 이미지 삭제
+    void deleteImgByS3Keys(List<String> toDeleteS3Keys);
 
     // 장바구니 추가
     void addWishList(WishLists wishList);

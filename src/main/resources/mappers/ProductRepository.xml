@@ -16,6 +16,9 @@
   </resultMap>
 
   <resultMap id="getProductsResultMap" type="com.petlog.productService.dto.GetProductsResponseDto" extends="ProductResultMap">
+    <collection property="s3Key" ofType="java.lang.String">
+      <result column="s3_key"/>
+    </collection>
     <collection property="imgUrl" ofType="java.lang.String">
       <result column="img_url"/>
     </collection>
@@ -37,21 +40,23 @@
     VALUES (#{userId}, #{name}, #{price}, #{quantity} )
   </insert>
 
-
-  <insert id="insertProductImage" parameterType="com.petlog.productService.entity.ProductImages" useGeneratedKeys="true" keyProperty="productImageId">
-    INSERT INTO product_images (product_id, img_url)
-    VALUES (#{productId}, #{imgUrl})
+  <insert id="insertProductImage">
+    INSERT INTO product_images (product_id, img_url, s3_key)
+    VALUES
+    <foreach collection="list" item="img" separator=",">
+      (#{img.productId}, #{img.imgUrl}, #{img.s3Key})
+    </foreach>
   </insert>
 
   <select id="getAllProducts" resultMap="getProductsResultMap">
-    SELECT p.id, p.user_id, p.name, p.price, p.quantity, pi.img_url
+    SELECT p.id, p.user_id, p.name, p.price, p.quantity, pi.img_url, pi.s3_key
     FROM products p
            LEFT JOIN product_images pi ON p.id = pi.product_id
     WHERE deleted_at IS NULL
   </select>
 
   <select id="getProductById" parameterType="int" resultMap="getProductsResultMap">
-    SELECT p.id, p.user_id, p.name, p.price, p.quantity, pi.img_url
+    SELECT p.id, p.user_id, p.name, p.price, p.quantity, pi.img_url, pi.s3_key
     FROM products p
     LEFT JOIN product_images pi ON p.id = pi.product_id
     WHERE p.id = #{productId}
@@ -80,13 +85,13 @@
     DELETE FROM product_images WHERE product_id = #{productId}
   </delete>
 
-  <insert id="insertProductImage2">
-    INSERT INTO product_images (product_id, img_url, s3_key)
-    VALUES
-    <foreach collection="list" item="img" separator=",">
-      (#{img.productId}, #{img.imgUrl}, #{img.s3Key})
-    </foreach>
-  </insert>
+  <delete id="deleteImgByS3Keys" >
+    DELETE FROM product_images
+    WHERE s3_key IN
+      <foreach collection="list" item="S3Key" open="(" separator="," close=")">
+      #{S3Key}
+      </foreach>
+  </delete>
 
   <insert id="addWishList" parameterType="com.petlog.productService.entity.WishLists">
     INSERT INTO wishLists (user_id, product_id, quantity)
@@ -99,6 +104,7 @@
      LEFT JOIN products p ON w.product_id = p.id
      LEFT JOIN product_images pi ON p.id = pi.product_id
     WHERE w.user_id = #{userId}
+      AND p.deleted_at IS NULL
   </select>
 
   <update id="updateWishList">
