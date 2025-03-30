@@ -78,6 +78,9 @@ public class ProductService {
     @Transactional
     public void deleteProduct(int productId) {
         productRepository.deleteProduct(productId);
+        List<String> oldKeys = productRepository.findS3KeysByProductId(productId);
+        deleteFiles(oldKeys);
+        productRepository.deleteImgByProductId(productId);
     }
 
     public void updateProduct(int productId, CreateProductDto dto) {
