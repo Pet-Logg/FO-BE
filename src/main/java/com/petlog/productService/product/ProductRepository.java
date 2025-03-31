@@ -38,20 +38,19 @@ public interface ProductRepository {
 
     void deleteImgByProductId(int productId);
 
-    void insertProductImage2(List<ProductImages> imageEntities);
-
-    // 위시 리스트 추가
+    // 장바구니 추가
     void addWishList(WishLists wishList);
 
-    // 위시 리스트 조회
+    // 장바구니 조회
     List<GetWishListResponseDto> getWishList(int userId);
 
-    // 위시 리스트 수정
+    // 장바구니 수정
     void updateWishList(
             @Param("dto") CartItemRequestDto dto,
             @Param("userId") int userId
     );
 
+    // 장바구니에서 상품삭제
     void deleteWishList(@Param("dto") DeleteWishListRequestDto dto,
                         @Param("userId") int userId
     );

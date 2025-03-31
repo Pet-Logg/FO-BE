@@ -62,7 +62,7 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
-
+    // 상품 수정
     @PutMapping("/{productId}")
     public ResponseEntity<ResponseMessage> updateProduct(@PathVariable("productId") int productId, CreateProductDto dto) {
 
@@ -89,7 +89,7 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/wishList")
+    @PostMapping("/cart")
     public ResponseEntity<ResponseMessage> addsWishList(@RequestBody CartItemRequestDto dto, HttpServletRequest request){
 
         int userId = extractUserIdFromToken(request);
@@ -103,7 +103,7 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/wishList")
+    @GetMapping("/cart")
     public ResponseEntity<ResponseMessage> getWishList(HttpServletRequest request){
 
         int userId = extractUserIdFromToken(request);
@@ -118,7 +118,7 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/wishList")
+    @PutMapping("/cart")
     public ResponseEntity<ResponseMessage> updateWishList(@RequestBody CartItemRequestDto dto, HttpServletRequest request){
 
         int userId = extractUserIdFromToken(request);
@@ -132,10 +132,9 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/wishList")
+    @DeleteMapping("/cart")
     public ResponseEntity<ResponseMessage> deleteWishList(@RequestBody DeleteWishListRequestDto dto, HttpServletRequest request){
 
-        System.out.println("dto : " + dto);
         int userId = extractUserIdFromToken(request);
         productService.deleteWishList(dto, userId);
 

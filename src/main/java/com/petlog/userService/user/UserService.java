@@ -1,14 +1,19 @@
 package com.petlog.userService.user;
 
+import com.petlog.userService.dto.RefreshResponseDto;
 import com.petlog.userService.entity.Users;
 import com.petlog.userService.dto.ChangePasswordRequestDto;
 import com.petlog.userService.dto.UserCommonDto;
 import com.petlog.utils.JwtUtil;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -24,7 +29,6 @@ public class UserService {
 
         // 아이디 중복체크
         if (idCheck(userCommonDto.getEmail()).isPresent()) {
-            System.out.println("아이디 중복체크 완");
             throw new BadRequestException("이미 사용중인 이메일 입니다.");
         }
 
@@ -43,7 +47,7 @@ public class UserService {
     }
 
     // 로그인
-    public String login(UserCommonDto userCommonDto) throws BadRequestException {
+    public Cookie login(UserCommonDto userCommonDto, HttpServletResponse response) throws BadRequestException {
         Optional<Users> user = idCheck(userCommonDto.getEmail());
 
         if (user.isEmpty()) {
@@ -54,12 +58,76 @@ public class UserService {
 
         // 비밀번호 검증
         if (passwordEncoder.matches(userCommonDto.getPassword(), user.get().getPassword())) {
-            token = jwtUtil.createToken(user.get().getId(), user.get().getRole().toString());
+            String accessToken = jwtUtil.createAccessToken(user.get().getId(), user.get().getRole().toString());
+            String refreshToken = jwtUtil.createRefreshToken(user.get().getId());
 
-            return token;
+            userRepository.saveRefreshToken(user.get().getId(), refreshToken);
+
+            Map<String,String> tokens = new HashMap<>();
+            tokens.put("accessToken", accessToken);
+            tokens.put("refreshToken", refreshToken);
+
+            // 쿠키 생성
+            Cookie accessTokenCookie = new Cookie("Authorization", tokens.get("accessToken"));
+            accessTokenCookie.setHttpOnly(false);
+            accessTokenCookie.setSecure(false); // HTTPS를 사용하는 경우에만 설정
+            accessTokenCookie.setPath("/");
+
+            // 응답에 쿠키 추가
+            response.addCookie(accessTokenCookie);
+
+            Cookie refreshTokencookie = new Cookie("refreshToken", tokens.get("refreshToken"));
+            refreshTokencookie.setHttpOnly(true);
+            refreshTokencookie.setSecure(false); // HTTPS를 사용하는 경우에만 설정
+            refreshTokencookie.setPath("/");
+            refreshTokencookie.setMaxAge(3600); // 쿠키 유효 시간 설정 (1시간)
+
+            response.addCookie(refreshTokencookie);
+
+            return accessTokenCookie;
         }
 
         throw new BadRequestException("아이디 또는 비밀번호가 잘못되었습니다.");
+    }
+
+    public Cookie refreshAccessToken(String refreshToken, HttpServletResponse response) {
+
+        // 1. Refresh Token 유무 검증
+        if (refreshToken == null) {
+            throw new IllegalArgumentException("Refresh token missing");
+        }
+
+        // 2. 리프레시 토큰 유효성 검사
+        jwtUtil.getUserInfoFromToken(refreshToken);
+
+        // 3. DB에서 Refresh Token 조회
+        RefreshResponseDto storedToken = userRepository.findRefreshToken(refreshToken);
+
+        if (storedToken == null) {
+            throw new IllegalArgumentException("Refresh token not found");
+        }
+
+        // 3. 토큰 일치 여부 확인
+        if (!refreshToken.equals(storedToken.getRefreshToken())) {
+            throw new IllegalArgumentException("Refresh token mismatch");
+        }
+
+        // 4. 새 Access Token 생성
+        String newAccessToken = jwtUtil.createAccessToken(storedToken.getUserId(), storedToken.getRole());
+
+        // 5. 새 Access Token 쿠키 설정
+        Cookie newAccessTokenCookie = new Cookie("Authorization", newAccessToken);
+        newAccessTokenCookie.setHttpOnly(false);
+        newAccessTokenCookie.setSecure(false);
+        newAccessTokenCookie.setPath("/");
+        response.addCookie(newAccessTokenCookie);
+
+
+        return newAccessTokenCookie;
+    }
+
+    public void deleteToken(int userId){
+        userRepository.deleteToken(userId);
     }
 
     // 회원 비밀번호 수정
@@ -79,7 +147,6 @@ public class UserService {
                 user.setPassword(passwordEncoder.encode(dto.getPassword()));  // 비밀번호 암호화
             }
 
-            System.out.println("user : " + user);
             userRepository.savePassword(user);
 
         } else {
