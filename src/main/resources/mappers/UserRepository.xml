@@ -13,7 +13,7 @@
     WHERE email = #{email}
   </select>
 
-  <insert id="createUser" parameterType="com.petlog.userService.entity.Users" useGeneratedKeys="true" keyProperty="userId">
+  <insert id="createUser" parameterType="com.petlog.userService.entity.Users" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO users (email, password, role)
     VALUES (#{email}, #{password}, #{role})
   </insert>

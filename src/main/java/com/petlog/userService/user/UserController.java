@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,7 +47,7 @@ public class UserController {
             @RequestBody UserCommonDto userCommonDto,
             HttpServletResponse response) throws BadRequestException {
 
-        Cookie accessTokenCookie = userService.login(userCommonDto, response);
+        ResponseCookie accessTokenCookie = userService.login(userCommonDto, response);
 
         ResponseMessage responseMessage = ResponseMessage.builder()
                 .data(accessTokenCookie) // 토큰 다시 준거
