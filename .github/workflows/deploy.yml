@@ -3,7 +3,7 @@ name: CI/CD to EC2 # 워크 플로우 이름, GitHub Actions에서 보여지는 
 on:
   push:
     branches:
-      - dev  # main 브랜치에 push될 때 실행
+      - temp  # main 브랜치에 push될 때 실행
 
 jobs:
   spring-build:
@@ -25,7 +25,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          region: ${{ env.REGION }}
+          aws-region: ${{ env.REGION }}
 
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2 # ECR 로그인
@@ -46,7 +46,7 @@ jobs:
             IMAGE_URI=${{ secrets.AWS_ECR_URI }}
             REGION=${{ env.REGION }}
             aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $IMAGE_URI
-            docker stop spring-app || true
-            docker rm spring-app || true
+            docker stop petlog || true
+            docker rm petlog || true
             docker pull $IMAGE_URI
             docker run -d --name petlog -p 8080:8080 $IMAGE_URI
