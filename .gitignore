@@ -37,4 +37,5 @@ out/
 .vscode/
 
 application-dev.yml
+application-local.yml
 query
