@@ -77,4 +77,4 @@ jobs:
             docker stop spring-app || true
             docker rm spring-app || true
             docker pull $IMAGE_URI
-            docker run -d —name petlog -p 8080:8080 $IMAGE_URI
+            docker run -d --name petlog -p 8080:8080 $IMAGE_URI
