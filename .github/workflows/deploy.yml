@@ -10,8 +10,8 @@ jobs:
     runs-on: ubuntu-latest # ubuntu-latest 환경에서 실행
 
     env:
-      IMAGE_URI: ${{ secrets.AWS_ECR_URI }}
-      AWS-REGION: ap-northeast-2
+      image-uri: ${{ secrets.AWS_ECR_URI }}
+      aws-region: ap-northeast-2
 
     steps:
       - name: Checkout source
