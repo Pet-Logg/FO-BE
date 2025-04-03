@@ -1,0 +1,52 @@
+name: CI/CD to EC2 # 워크 플로우 이름, GitHub Actions에서 보여지는 이름
+
+on:
+  push:
+    branches:
+      - dev  # main 브랜치에 push될 때 실행
+
+jobs:
+  spring-build:
+    runs-on: ubuntu-latest # ubuntu-latest 환경에서 실행
+
+    env:
+      IMAGE_URI: ${{ secrets.AWS_ECR_URI }}
+      REGION: ap-northeast-2
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3 # GitHub 저장소 코드를 현재 실행 환경에 복사
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v3 # 고급 빌드 기능을 활성화 - 멀티 플랫폼 빌드나 캐시 최적화
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3 # AWS 사용자 인증
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          region: ${{ env.REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2 # ECR 로그인
+
+      - name: Build and Push Docker image # 빌드하고 ECR에 도커 이미지 푸시
+        run: |
+          echo "Using image URI: $IMAGE_URI"
+          docker build --platform linux/amd64 -t $IMAGE_URI .
+          docker push $IMAGE_URI
+
+      - name: SSH to EC2 and Deploy
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            IMAGE_URI=${{ secrets.AWS_ECR_URI }}
+            REGION=${{ env.REGION }}
+            aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $IMAGE_URI
+            docker stop spring-app || true
+            docker rm spring-app || true
+            docker pull $IMAGE_URI
+            docker run -d --name petlog -p 8080:8080 $IMAGE_URI

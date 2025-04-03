@@ -21,7 +21,7 @@ public class ProductController {
 
     // 제품 생성
     @PostMapping
-    public ResponseEntity<ResponseMessage> createProduct(@ModelAttribute CreateProductDto createProductDto, HttpServletRequest request) {
+    public ResponseEntity<ResponseMessage> createProduct(@ModelAttribute CreateProductRequestDto createProductDto, HttpServletRequest request) {
 
         int userId = extractUserIdFromToken(request);
         productService.createProduct(createProductDto, userId);
@@ -64,7 +64,7 @@ public class ProductController {
 
     // 상품 수정
     @PutMapping("/{productId}")
-    public ResponseEntity<ResponseMessage> updateProduct(@PathVariable("productId") int productId, CreateProductDto dto) {
+    public ResponseEntity<ResponseMessage> updateProduct(@PathVariable("productId") int productId, UpdateProductRequestDto dto) {
 
         productService.updateProduct(productId, dto);
 
@@ -145,49 +145,6 @@ public class ProductController {
                 .build();
         return ResponseEntity.ok(response);
     }
-
-//
-//
-//    /**
-//     * 특정 상품 ID 목록으로 상품 정보 조회
-//     *
-//     * @param productIds 상품 ID 목록
-//     * @return 상품 정보 목록
-//     */
-//    @GetMapping
-//    public ResponseEntity<List<ProductDto>> getProductsByIds(@RequestParam("ids") List<Integer> productIds) {
-//        // ProductService를 통해 상품 정보 조회
-//        List<Product> products = productService.getProductsByIds(productIds);
-//        // Product 엔티티를 ProductDto(마이크로 서비스 간 사용하는 DTO)로 변환
-//        List<ProductDto> productDtos = products.stream()
-//                .map(product -> new ProductDto(product.getProductId(), product.getName(), product.getPrice(), product.getDescription(), product.getExposeYsno()))
-//                .collect(Collectors.toList());
-//        // userservice에 응답
-//        return ResponseEntity.ok(productDtos);
-//    }
-//
-//
-//    // Order-Service : 재고 업데이트
-//    // rabbitMQ로 대체
-////    @PutMapping("/updateStock")
-////    public void updateStock(@RequestBody CreateOrderDto createOrderDto) {
-////        productService.updateStock(createOrderDto);
-////    }
-//
-//
-//    // Order-Service : 재고 되돌리기
-//    @PutMapping("/restoreStock")
-//    public void restoreStock(@RequestBody CreateOrderDto createOrderDto) {
-//        productService.restoreStock(createOrderDto);
-//    }
-//
-//
-//    // Order-Service : 가격 가져오기
-//    // rabbitMQ로 대체
-////    @GetMapping("/getPrice")
-////    public int getProductPrice(@RequestParam("productId") int productId) {
-////        return productService.getProductPrice(productId);
-////    }
 
     private int extractUserIdFromToken(HttpServletRequest request) {
         String token = request.getHeader("Authorization");

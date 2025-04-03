@@ -16,4 +16,5 @@ public class GetProductsResponseDto {
     private int price;
     private int quantity;
     private List<String> imgUrl;
+    private List<String> s3Key;
 }

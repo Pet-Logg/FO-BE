@@ -9,6 +9,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -47,7 +48,7 @@ public class UserService {
     }
 
     // 로그인
-    public Cookie login(UserCommonDto userCommonDto, HttpServletResponse response) throws BadRequestException {
+    public ResponseCookie login(UserCommonDto userCommonDto, HttpServletResponse response) throws BadRequestException {
         Optional<Users> user = idCheck(userCommonDto.getEmail());
 
         if (user.isEmpty()) {
@@ -67,24 +68,28 @@ public class UserService {
             tokens.put("accessToken", accessToken);
             tokens.put("refreshToken", refreshToken);
 
-            // 쿠키 생성
-            Cookie accessTokenCookie = new Cookie("Authorization", tokens.get("accessToken"));
-            accessTokenCookie.setHttpOnly(false);
-            accessTokenCookie.setSecure(false); // HTTPS를 사용하는 경우에만 설정
-            accessTokenCookie.setPath("/");
+            ResponseCookie cookie = ResponseCookie.from("Authorization", tokens.get("accessToken"))
+                    .domain(".petlog.store")
+                    .httpOnly(false)
+                    .secure(true)
+                    .path("/")
+                    .sameSite("None")
+                    .build();
 
-            // 응답에 쿠키 추가
-            response.addCookie(accessTokenCookie);
+            response.addHeader("Set-Cookie", cookie.toString());
 
-            Cookie refreshTokencookie = new Cookie("refreshToken", tokens.get("refreshToken"));
-            refreshTokencookie.setHttpOnly(true);
-            refreshTokencookie.setSecure(false); // HTTPS를 사용하는 경우에만 설정
-            refreshTokencookie.setPath("/");
-            refreshTokencookie.setMaxAge(3600); // 쿠키 유효 시간 설정 (1시간)
+            ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", tokens.get("refreshToken"))
+                    .domain(".petlog.store")
+                    .httpOnly(false)
+                    .secure(true)
+                    .path("/")
+                    .maxAge(7 * 24 * 60 * 60)
+                    .sameSite("None")
+                    .build();
 
-            response.addCookie(refreshTokencookie);
+            response.addHeader("Set-Cookie", refreshCookie.toString());
 
-            return accessTokenCookie;
+            return cookie;
         }
 
         throw new BadRequestException("아이디 또는 비밀번호가 잘못되었습니다.");
