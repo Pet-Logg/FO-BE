@@ -11,7 +11,7 @@ jobs:
 
     env:
       IMAGE_URI: ${{ secrets.AWS_ECR_URI }}
-      REGION: ap-northeast-2
+      AWS-REGION: ap-northeast-2
 
     steps:
       - name: Checkout source
