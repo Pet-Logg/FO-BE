@@ -10,8 +10,8 @@ jobs:
     runs-on: ubuntu-latest # ubuntu-latest 환경에서 실행
 
     env:
-      image-uri: ${{ secrets.AWS_ECR_URI }}
-      aws-region: ap-northeast-2
+      IMAGE_URI: ${{ secrets.AWS_ECR_URI }}
+      REGION: ap-northeast-2
 
     steps:
       - name: Checkout source
@@ -25,7 +25,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          region: ${{ env.REGION }}
+          aws-region: ${{ env.REGION }}
 
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2 # ECR 로그인
