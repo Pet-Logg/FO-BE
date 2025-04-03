@@ -5,10 +5,13 @@ import com.petlog.userService.entity.Users;
 import com.petlog.userService.dto.ChangePasswordRequestDto;
 import com.petlog.userService.dto.UserCommonDto;
 import com.petlog.utils.JwtUtil;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +28,10 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final RedisService redisService;
+
+    @Value("${app.env}")
+    private String appEnv;
 
     //회원가입
     public int createUser(UserCommonDto userCommonDto) throws BadRequestException {
@@ -62,31 +70,48 @@ public class UserService {
             String accessToken = jwtUtil.createAccessToken(user.get().getId(), user.get().getRole().toString());
             String refreshToken = jwtUtil.createRefreshToken(user.get().getId());
 
-            userRepository.saveRefreshToken(user.get().getId(), refreshToken);
+            redisService.saveDataWithTTL("refresh:" + user.get().getId(), refreshToken, 14, TimeUnit.DAYS);
 
-            Map<String,String> tokens = new HashMap<>();
+            Map<String, String> tokens = new HashMap<>();
             tokens.put("accessToken", accessToken);
             tokens.put("refreshToken", refreshToken);
 
-            ResponseCookie cookie = ResponseCookie.from("Authorization", tokens.get("accessToken"))
-                    .domain(".petlog.store")
-                    .httpOnly(false)
-                    .secure(true)
-                    .path("/")
-                    .sameSite("None")
-                    .build();
+            ResponseCookie cookie;
+            ResponseCookie refreshCookie;
+
+            if ("local".equals(appEnv)) {
+                cookie = ResponseCookie.from("Authorization", tokens.get("accessToken"))
+                        .httpOnly(false)
+                        .secure(false)
+                        .path("/")
+                        .build();
+
+                refreshCookie = ResponseCookie.from("refreshToken", tokens.get("refreshToken"))
+                        .httpOnly(false)
+                        .secure(false)
+                        .path("/")
+                        .maxAge(7 * 24 * 60 * 60)
+                        .build();
+            } else {
+                cookie = ResponseCookie.from("Authorization", tokens.get("accessToken"))
+                        .domain(".petlog.store")
+                        .httpOnly(false)
+                        .secure(true)
+                        .path("/")
+                        .sameSite("None")
+                        .build();
+
+                refreshCookie = ResponseCookie.from("refreshToken", tokens.get("refreshToken"))
+                        .domain(".petlog.store")
+                        .httpOnly(false)
+                        .secure(true)
+                        .path("/")
+                        .maxAge(7 * 24 * 60 * 60)
+                        .sameSite("None")
+                        .build();
+            }
 
             response.addHeader("Set-Cookie", cookie.toString());
-
-            ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", tokens.get("refreshToken"))
-                    .domain(".petlog.store")
-                    .httpOnly(false)
-                    .secure(true)
-                    .path("/")
-                    .maxAge(7 * 24 * 60 * 60)
-                    .sameSite("None")
-                    .build();
-
             response.addHeader("Set-Cookie", refreshCookie.toString());
 
             return cookie;
@@ -95,7 +120,7 @@ public class UserService {
         throw new BadRequestException("아이디 또는 비밀번호가 잘못되었습니다.");
     }
 
-    public Cookie refreshAccessToken(String refreshToken, HttpServletResponse response) {
+    public Cookie refreshAccessToken(String refreshToken, Claims claims, HttpServletResponse response) {
 
         // 1. Refresh Token 유무 검증
         if (refreshToken == null) {
@@ -105,22 +130,22 @@ public class UserService {
         // 2. 리프레시 토큰 유효성 검사
         jwtUtil.getUserInfoFromToken(refreshToken);
 
-        // 3. DB에서 Refresh Token 조회
-        RefreshResponseDto storedToken = userRepository.findRefreshToken(refreshToken);
+        // 3. 레디스에서 Refresh Token 조회
+        Object storedToken = redisService.getData("refresh:" + claims.get("userId"));
 
         if (storedToken == null) {
             throw new IllegalArgumentException("Refresh token not found");
         }
 
-        // 3. 토큰 일치 여부 확인
-        if (!refreshToken.equals(storedToken.getRefreshToken())) {
+        // 4. 토큰 일치 여부 확인
+        if (!refreshToken.equals(storedToken)) {
             throw new IllegalArgumentException("Refresh token mismatch");
         }
 
-        // 4. 새 Access Token 생성
-        String newAccessToken = jwtUtil.createAccessToken(storedToken.getUserId(), storedToken.getRole());
+        // 5. 새 Access Token 생성
+        String newAccessToken = jwtUtil.createAccessToken(Integer.parseInt(claims.get("userId").toString()), claims.get("role").toString());
 
-        // 5. 새 Access Token 쿠키 설정
+        // 6. 새 Access Token 쿠키 설정
         Cookie newAccessTokenCookie = new Cookie("Authorization", newAccessToken);
         newAccessTokenCookie.setHttpOnly(false);
         newAccessTokenCookie.setSecure(false);
@@ -131,8 +156,8 @@ public class UserService {
         return newAccessTokenCookie;
     }
 
-    public void deleteToken(int userId){
-        userRepository.deleteToken(userId);
+    public void logout(Claims claims) {
+        redisService.deleteData("refresh:" + claims.get("userId"));
     }
 
     // 회원 비밀번호 수정

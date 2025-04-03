@@ -26,3 +26,8 @@ aws:
     accessKey: ${AWS_S3_CREDENTIALS_ACCESSKEY}  #️ IAM 사용자 Access Key
     secretKey: ${AWS_S3_CREDENTIALS_SECRETKEY}  # IAM 사용자 Secret Key
   region: ap-northeast-2  # 사용 중인 AWS 리전 (서울 기준)
+
+data:
+  redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}

@@ -62,10 +62,13 @@ public class UserController {
     @PostMapping("/refresh")
     public ResponseEntity<ResponseMessage> refreshAccessToken(
             @CookieValue(value = "refreshToken", required = false) String refreshToken,
+            HttpServletRequest request,
             HttpServletResponse response
     ) {
+        Claims claims = extractClaimsFromToken(request);
+
         // 토큰 유효성 검사 및 새 Access Token 발급
-        Cookie newAccessTokenCookie = userService.refreshAccessToken(refreshToken, response);
+        Cookie newAccessTokenCookie = userService.refreshAccessToken(refreshToken, claims, response);
 
         return ResponseEntity.ok(ResponseMessage.builder()
                 .data(newAccessTokenCookie)
@@ -77,9 +80,9 @@ public class UserController {
     @PostMapping("logout")
     public ResponseEntity<ResponseMessage> logout(HttpServletRequest request, HttpServletResponse response) {
 
-        int userId = extractUserIdFromToken(request);
+        Claims claims = extractClaimsFromToken(request);
 
-        userService.deleteToken(userId);
+        userService.logout(claims);
 
         //  Token 쿠키 삭제
         deleteCookie(response, "Authorization");
@@ -132,6 +135,20 @@ public class UserController {
         }
 
         return userId;
+    }
+
+    // 토큰에서 클레임 반환
+    private Claims extractClaimsFromToken(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+
+        if (token == null || !token.startsWith("Bearer ")) {
+            throw new RuntimeException("Missing or invalid Authorization header");
+        }
+
+        token = token.replace("Bearer ", ""); // "Bearer " 제거
+        Claims claims = jwtUtil.getUserInfoFromToken(token); // JWT에서 클레임 가져오기
+
+        return claims;
     }
 
     public void deleteCookie(HttpServletResponse response, String name) {

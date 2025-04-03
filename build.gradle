@@ -29,9 +29,11 @@ dependencies {
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3' // MyBatis
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE' // AWS
 
-    compileOnly group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
+    compileOnly group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5' // jwt
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis' // redis
 
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'com.mysql:mysql-connector-j'
