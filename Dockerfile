@@ -17,6 +17,4 @@ WORKDIR /app
 
 COPY --from=builder /app/build/libs/*SNAPSHOT.jar app.jar
 
-COPY --from=builder /app/src/main/resources/application-dev.yml application.yml
-
-ENTRYPOINT ["java", "-jar", "app.jar", "--spring.config.location=file:/app/application.yml"]
+ENTRYPOINT ["java", "-jar", "app.jar", "--spring.profiles.active=dev"]

@@ -3,7 +3,7 @@ name: CI/CD to EC2 # 워크 플로우 이름, GitHub Actions에서 보여지는 
 on:
   push:
     branches:
-      - dev  # main 브랜치에 push될 때 실행
+      - temp  # dev 브랜치에 push될 때 실행
 
 jobs:
   spring-build:
@@ -25,10 +25,38 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          region: ${{ env.REGION }}
+          aws-region: ${{ env.REGION }}
 
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2 # ECR 로그인
+
+      - name: Create application-dev.yml
+        run: |
+          echo "spring:
+            datasource:
+              url: ${{ secrets.SPRING_DATASOURCE_URL }}
+              username: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
+              password: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
+              driver-class-name: com.mysql.cj.jdbc.Driver
+            servlet:
+              multipart:
+                max-file-size: 10MB
+                max-request-size: 30MB
+          mybatis:
+            configuration:
+              map-underscore-to-camel-case: true
+            mapper-locations: classpath:mappers/*.xml
+            type-aliases-package: com.petlog.userService.domain
+          jwt:
+            secret:
+              key: ${{ secrets.JWT_SECRET_KEY }}
+          aws:
+            s3:
+              bucket: ${{ secrets.AWS_S3_BUCKET }}
+            credentials:
+              accessKey: ${{ secrets.AWS_ACCESS_KEY_ID }}
+              secretKey: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            region: ap-northeast-2" > src/main/resources/application-dev.yml
 
       - name: Build and Push Docker image # 빌드하고 ECR에 도커 이미지 푸시
         run: |
@@ -40,13 +68,13 @@ jobs:
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ec2-user
+          username: ubuntu
           key: ${{ secrets.EC2_KEY }}
           script: |
             IMAGE_URI=${{ secrets.AWS_ECR_URI }}
             REGION=${{ env.REGION }}
             aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $IMAGE_URI
-            docker stop spring-app || true
-            docker rm spring-app || true
+            docker stop petlog || true
+            docker rm petlog || true
             docker pull $IMAGE_URI
             docker run -d --name petlog -p 8080:8080 $IMAGE_URI
