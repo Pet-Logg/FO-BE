@@ -1,13 +1,13 @@
 package com.petlog.userService.user;
 
-import com.petlog.userService.dto.RefreshResponseDto;
+import com.petlog.common.exception.BizRuntimeException;
+import com.petlog.userService.dto.RefreshRequestDto;
 import com.petlog.userService.entity.Users;
 import com.petlog.userService.dto.ChangePasswordRequestDto;
 import com.petlog.userService.dto.UserCommonDto;
 import com.petlog.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
@@ -120,40 +120,51 @@ public class UserService {
         throw new BadRequestException("아이디 또는 비밀번호가 잘못되었습니다.");
     }
 
-    public Cookie refreshAccessToken(String refreshToken, Claims claims, HttpServletResponse response) {
+    public Cookie refreshAccessToken(String refreshToken, RefreshRequestDto dto, HttpServletResponse response) {
+        try {
+            // 1. Refresh Token 유무 검증
+            if (refreshToken == null) {
+                throw new BizRuntimeException("403", "Refresh token missing");
+            }
 
-        // 1. Refresh Token 유무 검증
-        if (refreshToken == null) {
-            throw new IllegalArgumentException("Refresh token missing");
+            // 2. 리프레시 토큰 유효성 검사
+            jwtUtil.getUserInfoFromToken(refreshToken);
+
+            // 3. 레디스에서 Refresh Token 조회
+            Object storedToken = redisService.getData("refresh:" + dto.getUserId());
+            if (storedToken == null) {
+                throw new BizRuntimeException("403","Refresh token not found");
+            }
+
+            // 4. 토큰 일치 여부 확인
+            if (!refreshToken.equals(storedToken)) {
+                throw new BizRuntimeException("403", "Refresh token mismatch");
+            }
+
+            // 5. 새 Access Token 생성
+            String newAccessToken = jwtUtil.createAccessToken(dto.getUserId(), dto.getRole());
+
+            // 6. 새 Access Token 쿠키 설정
+            Cookie newAccessTokenCookie = new Cookie("Authorization", newAccessToken);
+            newAccessTokenCookie.setHttpOnly(false);
+            newAccessTokenCookie.setSecure(false);
+            newAccessTokenCookie.setPath("/");
+            response.addCookie(newAccessTokenCookie);
+
+            return newAccessTokenCookie;
+        } catch (BizRuntimeException e) {
+            deleteCookie("Authorization", response);
+            deleteCookie("refreshToken", response);
+            throw e;
         }
+    }
 
-        // 2. 리프레시 토큰 유효성 검사
-        jwtUtil.getUserInfoFromToken(refreshToken);
-
-        // 3. 레디스에서 Refresh Token 조회
-        Object storedToken = redisService.getData("refresh:" + claims.get("userId"));
-
-        if (storedToken == null) {
-            throw new IllegalArgumentException("Refresh token not found");
-        }
-
-        // 4. 토큰 일치 여부 확인
-        if (!refreshToken.equals(storedToken)) {
-            throw new IllegalArgumentException("Refresh token mismatch");
-        }
-
-        // 5. 새 Access Token 생성
-        String newAccessToken = jwtUtil.createAccessToken(Integer.parseInt(claims.get("userId").toString()), claims.get("role").toString());
-
-        // 6. 새 Access Token 쿠키 설정
-        Cookie newAccessTokenCookie = new Cookie("Authorization", newAccessToken);
-        newAccessTokenCookie.setHttpOnly(false);
-        newAccessTokenCookie.setSecure(false);
-        newAccessTokenCookie.setPath("/");
-        response.addCookie(newAccessTokenCookie);
-
-
-        return newAccessTokenCookie;
+    // 쿠키 삭제 메서드
+    private void deleteCookie(String name, HttpServletResponse response) {
+        Cookie cookie = new Cookie(name, null);
+        cookie.setMaxAge(0); // 즉시 만료
+        cookie.setPath("/"); // 경로 동일하게 설정
+        response.addCookie(cookie);
     }
 
     public void logout(Claims claims) {

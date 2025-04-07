@@ -1,6 +1,7 @@
 package com.petlog.userService.user;
 
 import com.petlog.userService.dto.ChangePasswordRequestDto;
+import com.petlog.userService.dto.RefreshRequestDto;
 import com.petlog.userService.dto.ResponseMessage;
 import com.petlog.userService.dto.UserCommonDto;
 import com.petlog.utils.JwtUtil;
@@ -62,13 +63,11 @@ public class UserController {
     @PostMapping("/refresh")
     public ResponseEntity<ResponseMessage> refreshAccessToken(
             @CookieValue(value = "refreshToken", required = false) String refreshToken,
-            HttpServletRequest request,
+            @RequestBody RefreshRequestDto dto,
             HttpServletResponse response
     ) {
-        Claims claims = extractClaimsFromToken(request);
-
         // 토큰 유효성 검사 및 새 Access Token 발급
-        Cookie newAccessTokenCookie = userService.refreshAccessToken(refreshToken, claims, response);
+        Cookie newAccessTokenCookie = userService.refreshAccessToken(refreshToken, dto, response);
 
         return ResponseEntity.ok(ResponseMessage.builder()
                 .data(newAccessTokenCookie)
@@ -91,7 +90,7 @@ public class UserController {
         return ResponseEntity.ok(ResponseMessage.builder()
                 .data(null)
                 .statusCode(200)
-                .resultMessage("Logiout successful")
+                .resultMessage("Logout successful")
                 .build());
     }
 
