@@ -34,15 +34,15 @@ public class GlobalExceptionHandler {
 
     // 위에서 처리되지 않은 모든 예외를 여기서 처리
     @ExceptionHandler(Exception.class)
-    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     public ResponseEntity<ResponseMessage> handleGeneralException(Exception e, HttpServletRequest request, HttpServletResponse response) {
         log.error("Unexpected Error: " + e.getMessage(), e);
 
-        String msgId = ""; // 에러 코드
         String msg = e.getMessage(); // 에러 메세지
 
         if (e instanceof BizRuntimeException) {
+            String msgId = ""; // 에러 코드
+
             BizRuntimeException base = (BizRuntimeException) e;
             msgId = base.getErrorCode();
             msg = base.getMessage();
