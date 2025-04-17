@@ -90,11 +90,11 @@ public class ProductController {
     }
 
     @PostMapping("/cart")
-    public ResponseEntity<ResponseMessage> addsWishList(@RequestBody CartItemRequestDto dto, HttpServletRequest request){
+    public ResponseEntity<ResponseMessage> addCart(@RequestBody CartItemRequestDto dto, HttpServletRequest request){
 
         int userId = extractUserIdFromToken(request);
 
-        productService.addWishList(userId, dto);
+        productService.addCart(userId, dto);
 
         ResponseMessage response = ResponseMessage.builder()
                 .statusCode(200)
@@ -104,14 +104,14 @@ public class ProductController {
     }
 
     @GetMapping("/cart")
-    public ResponseEntity<ResponseMessage> getWishList(HttpServletRequest request){
+    public ResponseEntity<ResponseMessage> getCart(HttpServletRequest request){
 
         int userId = extractUserIdFromToken(request);
 
-        List<GetWishListResponseDto> wishList= productService.getWishList(userId);
+        List<GetCartResponseDto> cart= productService.getCart(userId);
 
         ResponseMessage response = ResponseMessage.builder()
-                .data(wishList)
+                .data(cart)
                 .statusCode(200)
                 .resultMessage("Product deleted successfully")
                 .build();
@@ -119,10 +119,10 @@ public class ProductController {
     }
 
     @PutMapping("/cart")
-    public ResponseEntity<ResponseMessage> updateWishList(@RequestBody CartItemRequestDto dto, HttpServletRequest request){
+    public ResponseEntity<ResponseMessage> updateCart(@RequestBody CartItemRequestDto dto, HttpServletRequest request){
 
         int userId = extractUserIdFromToken(request);
-        productService.updateWishList(dto, userId);
+        productService.updateCart(dto, userId);
 
         ResponseMessage response = ResponseMessage.builder()
                 .data(null)
@@ -133,10 +133,10 @@ public class ProductController {
     }
 
     @DeleteMapping("/cart")
-    public ResponseEntity<ResponseMessage> deleteWishList(@RequestBody DeleteWishListRequestDto dto, HttpServletRequest request){
+    public ResponseEntity<ResponseMessage> deleteCart(@RequestBody DeleteCartRequestDto dto, HttpServletRequest request){
 
         int userId = extractUserIdFromToken(request);
-        productService.deleteWishList(dto, userId);
+        productService.deleteCart(dto, userId);
 
         ResponseMessage response = ResponseMessage.builder()
                 .data(null)

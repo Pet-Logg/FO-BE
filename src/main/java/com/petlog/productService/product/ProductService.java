@@ -5,9 +5,10 @@ import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.petlog.config.S3Config;
 import com.petlog.productService.dto.*;
+import com.petlog.productService.entity.Carts;
 import com.petlog.productService.entity.ProductImages;
 import com.petlog.productService.entity.Products;
-import com.petlog.productService.entity.WishLists;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -129,26 +129,26 @@ public class ProductService {
     }
 
 
-    public void addWishList(int userId, CartItemRequestDto dto){
-        WishLists wishList = new WishLists();
+    public void addCart(int userId, CartItemRequestDto dto){
+        Carts cart = new Carts();
 
-        wishList.setUserId(userId);
-        wishList.setProductId(dto.getProductId());
-        wishList.setQuantity(dto.getQuantity());
+        cart.setUserId(userId);
+        cart.setProductId(dto.getProductId());
+        cart.setQuantity(dto.getQuantity());
 
-        productRepository.addWishList(wishList);
+        productRepository.addCart(cart);
     }
 
-    public List<GetWishListResponseDto> getWishList(int userId){
-         return productRepository.getWishList(userId);
+    public List<GetCartResponseDto> getCart(int userId){
+         return productRepository.getCart(userId);
     }
 
-    public void updateWishList(CartItemRequestDto dto, int userId){
-        productRepository.updateWishList(dto, userId);
+    public void updateCart(CartItemRequestDto dto, int userId){
+        productRepository.updateCart(dto, userId);
     }
 
-    public void deleteWishList(DeleteWishListRequestDto dto, int userId){
-        productRepository.deleteWishList(dto, userId);
+    public void deleteCart(DeleteCartRequestDto dto, int userId){
+        productRepository.deleteCart(dto, userId);
     }
 
     public String uploadFileToS3(MultipartFile file, String s3Key) {

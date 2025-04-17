@@ -21,7 +21,7 @@ public interface UserRepository {
     Optional<Users> findByUserId(@Param("userId") int userId);
 
     // 비밀번호 변경
-    void savePassword (Users user);
+    void changePassword (Users user);
 
     // 리프레시토큰 저장
     void saveRefreshToken (@Param("userId") int userId, @Param("refreshToken") String refreshToken );

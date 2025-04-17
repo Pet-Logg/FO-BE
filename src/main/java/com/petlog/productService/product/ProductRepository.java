@@ -1,12 +1,9 @@
 package com.petlog.productService.product;
 
-import com.petlog.productService.dto.CartItemRequestDto;
-import com.petlog.productService.dto.DeleteWishListRequestDto;
-import com.petlog.productService.dto.GetProductsResponseDto;
-import com.petlog.productService.dto.GetWishListResponseDto;
+import com.petlog.productService.dto.*;
+import com.petlog.productService.entity.Carts;
 import com.petlog.productService.entity.ProductImages;
 import com.petlog.productService.entity.Products;
-import com.petlog.productService.entity.WishLists;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -43,19 +40,19 @@ public interface ProductRepository {
     void deleteImgByS3Keys(List<String> toDeleteS3Keys);
 
     // 장바구니 추가
-    void addWishList(WishLists wishList);
+    void addCart(Carts cart);
 
     // 장바구니 조회
-    List<GetWishListResponseDto> getWishList(int userId);
+    List<GetCartResponseDto> getCart(int userId);
 
     // 장바구니 수정
-    void updateWishList(
+    void updateCart(
             @Param("dto") CartItemRequestDto dto,
             @Param("userId") int userId
     );
 
     // 장바구니에서 상품삭제
-    void deleteWishList(@Param("dto") DeleteWishListRequestDto dto,
+    void deleteCart(@Param("dto") DeleteCartRequestDto dto,
                         @Param("userId") int userId
     );
 }

@@ -171,7 +171,6 @@ public class UserService {
         redisService.deleteData("refresh:" + claims.get("userId"));
     }
 
-    // 회원 비밀번호 수정
     public void changePassword(int userId, ChangePasswordRequestDto dto) throws BadRequestException {
         Optional<Users> optionalUser = userRepository.findByUserId(userId);
 
@@ -180,15 +179,14 @@ public class UserService {
 
             if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
                 // 비밀번호 검증
-                String password = dto.getPassword();
-                if (!isPasswordValid(password)) {
+                if (!isPasswordValid(dto.getPassword())) {
                     throw new BadRequestException("Password does not meet the security requirements");
                 }
 
                 user.setPassword(passwordEncoder.encode(dto.getPassword()));  // 비밀번호 암호화
             }
 
-            userRepository.savePassword(user);
+            userRepository.changePassword(user);
 
         } else {
             throw new RuntimeException("User not found with id " + userId);

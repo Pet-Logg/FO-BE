@@ -24,10 +24,10 @@
     WHERE id = #{userId}
   </select>
 
-  <update id="savePassword" parameterType="com.petlog.userService.entity.Users">
+  <update id="changePassword" parameterType="com.petlog.userService.entity.Users">
     UPDATE users
     SET password = #{password}
-    WHERE id = #{userId}
+    WHERE id = #{id}
       AND deleted_at IS NULL
   </update>
 

@@ -24,7 +24,7 @@
     </collection>
   </resultMap>
 
-  <resultMap id="getWishListResultMap" type="com.petlog.productService.dto.GetWishListResponseDto" >
+  <resultMap id="getCartResultMap" type="com.petlog.productService.dto.GetCartResponseDto" >
     <id column="id" property="id"/>
     <result column="product_id" property="productId"/>
     <result column="name" property="name"/>
@@ -93,32 +93,32 @@
       </foreach>
   </delete>
 
-  <insert id="addWishList" parameterType="com.petlog.productService.entity.WishLists">
-    INSERT INTO wishLists (user_id, product_id, quantity)
+  <insert id="addCart" parameterType="com.petlog.productService.entity.Carts">
+    INSERT INTO carts (user_id, product_id, quantity)
     VALUES (#{userId}, #{productId}, #{quantity})
   </insert>
 
-  <select id="getWishList" parameterType="int" resultMap="getWishListResultMap">
-    SELECT w.id, w.product_id, p.name, p.price, w.quantity, pi.img_url
-    FROM wishLists w
-     LEFT JOIN products p ON w.product_id = p.id
+  <select id="getCart" parameterType="int" resultMap="getCartResultMap">
+    SELECT c.id, c.product_id, p.name, p.price, c.quantity, pi.img_url
+    FROM carts c
+     LEFT JOIN products p ON c.product_id = p.id
      LEFT JOIN product_images pi ON p.id = pi.product_id
-    WHERE w.user_id = #{userId}
+    WHERE c.user_id = #{userId}
       AND p.deleted_at IS NULL
   </select>
 
-  <update id="updateWishList">
-    UPDATE wishLists
+  <update id="updateCart">
+    UPDATE carts
        SET quantity = #{dto.quantity}
     WHERE product_id = #{dto.productId}
       AND user_id = #{userId}
   </update>
 
-  <delete id="deleteWishList">
-    DELETE FROM wishLists
+  <delete id="deleteCart">
+    DELETE FROM carts
     WHERE id IN
-    <foreach collection="dto.selectedItems" item="wishListId" open="(" separator="," close=")">
-        #{wishListId}
+    <foreach collection="dto.selectedItems" item="cartId" open="(" separator="," close=")">
+        #{cartId}
     </foreach>
       AND user_id = #{userId}
   </delete>

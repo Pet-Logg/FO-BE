@@ -5,6 +5,6 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class DeleteWishListRequestDto {
+public class DeleteCartRequestDto {
     private List<Integer> selectedItems;
 }

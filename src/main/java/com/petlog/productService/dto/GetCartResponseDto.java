@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class GetWishListResponseDto {
+public class GetCartResponseDto {
     private int id;
     private int productId;
     private String name;
