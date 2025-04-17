@@ -1,5 +1,6 @@
 package com.petlog.productService.product;
 
+import com.petlog.orderService.dto.GetCartResponseDto;
 import com.petlog.productService.dto.*;
 import com.petlog.userService.dto.ResponseMessage;
 import com.petlog.utils.JwtUtil;
@@ -23,7 +24,7 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<ResponseMessage> createProduct(@ModelAttribute CreateProductRequestDto createProductDto, HttpServletRequest request) {
 
-        int userId = extractUserIdFromToken(request);
+        int userId = jwtUtil.extractUserIdFromToken(request);
         productService.createProduct(createProductDto, userId);
 
         ResponseMessage response = ResponseMessage.builder()
@@ -76,7 +77,7 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
-
+    // 상품 삭제
     @DeleteMapping("/{productId}")
     public ResponseEntity<ResponseMessage> deleteProduct(@PathVariable("productId") int productId) {
 
@@ -87,105 +88,6 @@ public class ProductController {
                 .resultMessage("Product deleted successfully")
                 .build();
         return ResponseEntity.ok(response);
-    }
-
-    @PostMapping("/cart")
-    public ResponseEntity<ResponseMessage> addCart(@RequestBody CartItemRequestDto dto, HttpServletRequest request){
-
-        int userId = extractUserIdFromToken(request);
-
-        productService.addCart(userId, dto);
-
-        ResponseMessage response = ResponseMessage.builder()
-                .statusCode(200)
-                .resultMessage("Product deleted successfully")
-                .build();
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/cart")
-    public ResponseEntity<ResponseMessage> getCart(HttpServletRequest request){
-
-        int userId = extractUserIdFromToken(request);
-
-        List<GetCartResponseDto> cart= productService.getCart(userId);
-
-        ResponseMessage response = ResponseMessage.builder()
-                .data(cart)
-                .statusCode(200)
-                .resultMessage("Product deleted successfully")
-                .build();
-        return ResponseEntity.ok(response);
-    }
-
-    @PutMapping("/cart")
-    public ResponseEntity<ResponseMessage> updateCart(@RequestBody CartItemRequestDto dto, HttpServletRequest request){
-
-        int userId = extractUserIdFromToken(request);
-        productService.updateCart(dto, userId);
-
-        ResponseMessage response = ResponseMessage.builder()
-                .data(null)
-                .statusCode(200)
-                .resultMessage("Product deleted successfully")
-                .build();
-        return ResponseEntity.ok(response);
-    }
-
-    @DeleteMapping("/cart")
-    public ResponseEntity<ResponseMessage> deleteCart(@RequestBody DeleteCartRequestDto dto, HttpServletRequest request){
-
-        int userId = extractUserIdFromToken(request);
-        productService.deleteCart(dto, userId);
-
-        ResponseMessage response = ResponseMessage.builder()
-                .data(null)
-                .statusCode(200)
-                .resultMessage("Product deleted successfully")
-                .build();
-        return ResponseEntity.ok(response);
-    }
-
-    private int extractUserIdFromToken(HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
-
-        if (token == null || !token.startsWith("Bearer ")) {
-            throw new RuntimeException("Missing or invalid Authorization header");
-        }
-
-        token = token.replace("Bearer ", ""); // "Bearer " 제거
-        Claims claims = jwtUtil.getUserInfoFromToken(token); // JWT에서 클레임 가져오기
-
-        Object userIdObject = claims.get("userId");
-        if (userIdObject == null) {
-            throw new RuntimeException("User ID not found in token claims");
-        }
-
-        int userId;
-        try {
-            userId = Integer.parseInt(userIdObject.toString()); // 숫자로 변환
-        } catch (NumberFormatException e) {
-            throw new RuntimeException("Invalid user ID format in token");
-        }
-
-        return userId;
-    }
-
-    // 주문서 목록 조회
-    @PostMapping("/getOrderSheet")
-    private ResponseEntity<ResponseMessage> getOrderSheet (@RequestBody GetOrderSheetRequestDto dto, HttpServletRequest request) {
-
-        Claims claims = jwtUtil.extractClaimsFromToken(request);
-
-        List<GetCartResponseDto> orderSheetItems= productService.getOrderSheet(dto, claims);
-
-        ResponseMessage response = ResponseMessage.builder()
-                .data(orderSheetItems)
-                .statusCode(201)
-                .resultMessage("Diary create successfully")
-                .build();
-
-        return ResponseEntity.status(201).body(response);
     }
 
 }

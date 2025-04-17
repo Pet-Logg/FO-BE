@@ -1,7 +1,7 @@
 package com.petlog.productService.product;
 
 import com.petlog.productService.dto.*;
-import com.petlog.productService.entity.Carts;
+import com.petlog.orderService.entity.Carts;
 import com.petlog.productService.entity.ProductImages;
 import com.petlog.productService.entity.Products;
 import org.apache.ibatis.annotations.Mapper;
@@ -39,25 +39,4 @@ public interface ProductRepository {
     // S3Key로 상품 이미지 삭제
     void deleteImgByS3Keys(List<String> toDeleteS3Keys);
 
-    // 장바구니 추가
-    void addCart(Carts cart);
-
-    // 장바구니 조회
-    List<GetCartResponseDto> getCart(int userId);
-
-    // 장바구니 수정
-    void updateCart(
-            @Param("dto") CartItemRequestDto dto,
-            @Param("userId") int userId
-    );
-
-    // 장바구니에서 상품삭제
-    void deleteCart(@Param("dto") DeleteCartRequestDto dto,
-                        @Param("userId") int userId
-    );
-
-
-    // 주문서 상품 조회
-    List<GetCartResponseDto> getOrderSheet(@Param("dto") GetOrderSheetRequestDto dto,
-                                           @Param("userId") int userId);
 }

@@ -130,4 +130,30 @@ public class JwtUtil {
         return claims;
     }
 
+    // 토큰에서 userId 반환
+    public int extractUserIdFromToken(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+
+        if (token == null || !token.startsWith("Bearer ")) {
+            throw new RuntimeException("Missing or invalid Authorization header");
+        }
+
+        token = token.replace("Bearer ", ""); // "Bearer " 제거
+        Claims claims = getUserInfoFromToken(token); // JWT에서 클레임 가져오기
+
+        Object userIdObject = claims.get("userId");
+        if (userIdObject == null) {
+            throw new RuntimeException("User ID not found in token claims");
+        }
+
+        int userId;
+        try {
+            userId = Integer.parseInt(userIdObject.toString()); // 숫자로 변환
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Invalid user ID format in token");
+        }
+
+        return userId;
+    }
+
 }

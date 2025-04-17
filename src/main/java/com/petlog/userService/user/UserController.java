@@ -79,7 +79,7 @@ public class UserController {
     @PostMapping("logout")
     public ResponseEntity<ResponseMessage> logout(HttpServletRequest request, HttpServletResponse response) {
 
-        Claims claims = extractClaimsFromToken(request);
+        Claims claims = jwtUtil.extractClaimsFromToken(request);
 
         userService.logout(claims);
 
@@ -99,7 +99,7 @@ public class UserController {
     public ResponseEntity<ResponseMessage> changePassword(
             @RequestBody ChangePasswordRequestDto dto, HttpServletRequest request) throws BadRequestException {
 
-        int userId = extractUserIdFromToken(request);
+        int userId = jwtUtil.extractUserIdFromToken(request);
         userService.changePassword(userId, dto);
 
         ResponseMessage response = ResponseMessage.builder()
@@ -108,46 +108,6 @@ public class UserController {
                 .resultMessage("User updated successfully")
                 .build();
         return ResponseEntity.ok(response);
-    }
-
-    // 토큰에서 유저 아이디 반환
-    private int extractUserIdFromToken(HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
-
-        if (token == null || !token.startsWith("Bearer ")) {
-            throw new RuntimeException("Missing or invalid Authorization header");
-        }
-
-        token = token.replace("Bearer ", ""); // "Bearer " 제거
-        Claims claims = jwtUtil.getUserInfoFromToken(token); // JWT에서 클레임 가져오기
-
-        Object userIdObject = claims.get("userId");
-        if (userIdObject == null) {
-            throw new RuntimeException("User ID not found in token claims");
-        }
-
-        int userId;
-        try {
-            userId = Integer.parseInt(userIdObject.toString()); // 숫자로 변환
-        } catch (NumberFormatException e) {
-            throw new RuntimeException("Invalid user ID format in token");
-        }
-
-        return userId;
-    }
-
-    // 토큰에서 클레임 반환
-    private Claims extractClaimsFromToken(HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
-
-        if (token == null || !token.startsWith("Bearer ")) {
-            throw new RuntimeException("Missing or invalid Authorization header");
-        }
-
-        token = token.replace("Bearer ", ""); // "Bearer " 제거
-        Claims claims = jwtUtil.getUserInfoFromToken(token); // JWT에서 클레임 가져오기
-
-        return claims;
     }
 
     public void deleteCookie(HttpServletResponse response, String name) {

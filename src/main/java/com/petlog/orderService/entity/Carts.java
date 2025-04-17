@@ -1,4 +1,4 @@
-package com.petlog.productService.entity;
+package com.petlog.orderService.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

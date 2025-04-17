@@ -5,7 +5,7 @@ import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.petlog.config.S3Config;
 import com.petlog.productService.dto.*;
-import com.petlog.productService.entity.Carts;
+import com.petlog.orderService.entity.Carts;
 import com.petlog.productService.entity.ProductImages;
 import com.petlog.productService.entity.Products;
 import io.jsonwebtoken.Claims;
@@ -126,35 +126,6 @@ public class ProductService {
                 productRepository.insertProductImage(imageEntities);
             }
         }
-    }
-
-
-    public void addCart(int userId, CartItemRequestDto dto){
-        Carts cart = new Carts();
-
-        cart.setUserId(userId);
-        cart.setProductId(dto.getProductId());
-        cart.setQuantity(dto.getQuantity());
-
-        productRepository.addCart(cart);
-    }
-
-    public List<GetCartResponseDto> getCart(int userId){
-         return productRepository.getCart(userId);
-    }
-
-    public void updateCart(CartItemRequestDto dto, int userId){
-        productRepository.updateCart(dto, userId);
-    }
-
-    public void deleteCart(DeleteCartRequestDto dto, int userId){
-        productRepository.deleteCart(dto, userId);
-    }
-
-    public List<GetCartResponseDto> getOrderSheet(GetOrderSheetRequestDto dto, Claims claims) {
-
-        int userId = (int) claims.get("userId");
-        return productRepository.getOrderSheet(dto, userId);
     }
 
     public String uploadFileToS3(MultipartFile file, String s3Key) {

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!-- mapper 설정 하는 코드 -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.petlog.orderService.order.OrderRepository">
+  <resultMap id="getCartResultMap" type="com.petlog.orderService.dto.GetCartResponseDto" >
+    <id column="id" property="id"/>
+    <result column="product_id" property="productId"/>
+    <result column="name" property="name"/>
+    <result column="price" property="price"/>
+    <result column="quantity" property="quantity"/>
+    <collection property="imgUrl" ofType="java.lang.String">
+      <result column="img_url"/>
+    </collection>
+  </resultMap>
+  
+  <insert id="addCart" parameterType="com.petlog.orderService.entity.Carts">
+    INSERT INTO carts (user_id, product_id, quantity)
+    VALUES (#{userId}, #{productId}, #{quantity})
+  </insert>
+
+  <select id="getCart" parameterType="int" resultMap="getCartResultMap">
+    SELECT c.id, c.product_id, p.name, p.price, c.quantity, pi.img_url
+    FROM carts c
+           LEFT JOIN products p ON c.product_id = p.id
+           LEFT JOIN product_images pi ON p.id = pi.product_id
+    WHERE c.user_id = #{userId}
+      AND p.deleted_at IS NULL
+  </select>
+
+  <update id="updateCart">
+    UPDATE carts
+    SET quantity = #{dto.quantity}
+    WHERE product_id = #{dto.productId}
+      AND user_id = #{userId}
+  </update>
+
+  <delete id="deleteCart">
+    DELETE FROM carts
+    WHERE id IN
+    <foreach collection="dto.selectedItems" item="cartId" open="(" separator="," close=")">
+      #{cartId}
+    </foreach>
+    AND user_id = #{userId}
+  </delete>
+
+  <select id="getOrderSheet" resultMap="getCartResultMap">
+    SELECT c.id, c.product_id, c.quantity, p.name, p.price, pi.img_url
+    FROM carts c
+    LEFT JOIN products p ON c.product_id = p.id
+    LEFT JOIN product_images pi ON p.id = pi.product_id
+    WHERE c.id  IN
+    <foreach collection="dto.selectedItems" item="itemId" open="(" separator="," close=")">
+      #{itemId}
+    </foreach>
+    AND c.user_id = #{userId}
+  </select>
+</mapper>

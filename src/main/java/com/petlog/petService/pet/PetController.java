@@ -31,7 +31,7 @@ public class PetController {
             CreatePetRequestDto dto,
             HttpServletRequest request) throws BadRequestException {
 
-        int userId = extractUserIdFromToken(request);
+        int userId = jwtUtil.extractUserIdFromToken(request);
 
         int createdPet = petService.createPetInfo(dto, userId);
         ResponseMessage response = ResponseMessage.builder()
@@ -47,7 +47,7 @@ public class PetController {
     @GetMapping("/getPetsById")
     public ResponseEntity<ResponseMessage> getPetsById (HttpServletRequest request){
 
-        int userId = extractUserIdFromToken(request);
+        int userId = jwtUtil.extractUserIdFromToken(request);
 
         List<Pets> pets= petService.getPetsById(userId);
 
@@ -64,7 +64,7 @@ public class PetController {
     @GetMapping("/getPetDetail/{petId}")
     public ResponseEntity<ResponseMessage> getPetDetail (@PathVariable("petId") int petId, HttpServletRequest request){
 
-        int userId = extractUserIdFromToken(request);
+        int userId = jwtUtil.extractUserIdFromToken(request);
 
         UpdatePetResponseDto dto = petService.getPetDetail(userId, petId);
 
@@ -81,7 +81,7 @@ public class PetController {
     @DeleteMapping("/{petId}")
     public ResponseEntity<ResponseMessage> deletePet (@PathVariable("petId") int petId, HttpServletRequest request){
 
-        int userId = extractUserIdFromToken(request);
+        int userId = jwtUtil.extractUserIdFromToken(request);
 
         petService.deletePet(userId, petId);
 
@@ -100,7 +100,7 @@ public class PetController {
             UpdatePetRequestDto dto,
             HttpServletRequest request) throws BadRequestException {
 
-        int userId = extractUserIdFromToken(request);
+        int userId = jwtUtil.extractUserIdFromToken(request);
 
         petService.updatePet(petId, dto, userId);
 
@@ -116,7 +116,7 @@ public class PetController {
     @PostMapping("/createDiary")
     private ResponseEntity<ResponseMessage> createDiary (CreateDiaryRequestDto dto, HttpServletRequest request) {
 
-        int userId = extractUserIdFromToken(request);
+        int userId = jwtUtil.extractUserIdFromToken(request);
 
         petService.createDiary(userId, dto);
 
@@ -132,7 +132,7 @@ public class PetController {
     @GetMapping("/getDiaryById")
     private ResponseEntity<ResponseMessage> getDiaryById (HttpServletRequest request) {
 
-        int userId = extractUserIdFromToken(request);
+        int userId = jwtUtil.extractUserIdFromToken(request);
 
         List<Diary> diary = petService.getDiaryById(userId);
 
@@ -148,7 +148,7 @@ public class PetController {
     @GetMapping("/getDiaryDetailById/{diaryId}")
     private ResponseEntity<ResponseMessage> getDiaryDetailById (@PathVariable("diaryId") int diaryId, HttpServletRequest request) {
 
-        int userId = extractUserIdFromToken(request);
+        int userId = jwtUtil.extractUserIdFromToken(request);
 
         Diary diary = petService.getDiaryDetailById(userId, diaryId);
 
@@ -161,33 +161,4 @@ public class PetController {
         return ResponseEntity.status(201).body(response);
 
     }
-
-
-    // 토큰에서 유저 아이디 반환
-    private int extractUserIdFromToken(HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
-
-        if (token == null || !token.startsWith("Bearer ")) {
-            throw new RuntimeException("Missing or invalid Authorization header");
-        }
-
-        token = token.replace("Bearer ", ""); // "Bearer " 제거
-        Claims claims = jwtUtil.getUserInfoFromToken(token); // JWT에서 클레임 가져오기
-
-        Object userIdObject = claims.get("userId");
-        if (userIdObject == null) {
-            throw new RuntimeException("User ID not found in token claims");
-        }
-
-        int userId;
-        try {
-            userId = Integer.parseInt(userIdObject.toString()); // 숫자로 변환
-        } catch (NumberFormatException e) {
-            throw new RuntimeException("Invalid user ID format in token");
-        }
-
-        return userId;
-    }
-
-
 }

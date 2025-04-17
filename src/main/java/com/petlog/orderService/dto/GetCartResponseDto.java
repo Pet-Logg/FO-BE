@@ -1,4 +1,4 @@
-package com.petlog.productService.dto;
+package com.petlog.orderService.dto;
 
 import lombok.Data;
 
