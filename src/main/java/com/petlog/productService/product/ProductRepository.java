@@ -55,4 +55,9 @@ public interface ProductRepository {
     void deleteCart(@Param("dto") DeleteCartRequestDto dto,
                         @Param("userId") int userId
     );
+
+
+    // 주문서 상품 조회
+    List<GetCartResponseDto> getOrderSheet(@Param("dto") GetOrderSheetRequestDto dto,
+                                           @Param("userId") int userId);
 }

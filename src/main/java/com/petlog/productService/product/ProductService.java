@@ -151,6 +151,12 @@ public class ProductService {
         productRepository.deleteCart(dto, userId);
     }
 
+    public List<GetCartResponseDto> getOrderSheet(GetOrderSheetRequestDto dto, Claims claims) {
+
+        int userId = (int) claims.get("userId");
+        return productRepository.getOrderSheet(dto, userId);
+    }
+
     public String uploadFileToS3(MultipartFile file, String s3Key) {
         String bucketName = s3Config.getS3().getBucket();
 

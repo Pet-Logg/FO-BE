@@ -116,4 +116,18 @@ public class JwtUtil {
         }
     }
 
+    // 토큰에서 클레임 반환
+    public Claims extractClaimsFromToken(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+
+        if (token == null || !token.startsWith("Bearer ")) {
+            throw new RuntimeException("Missing or invalid Authorization header");
+        }
+
+        token = token.replace("Bearer ", ""); // "Bearer " 제거
+        Claims claims = getUserInfoFromToken(token); // JWT에서 클레임 가져오기
+
+        return claims;
+    }
+
 }

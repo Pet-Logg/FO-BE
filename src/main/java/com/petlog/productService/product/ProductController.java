@@ -171,4 +171,21 @@ public class ProductController {
         return userId;
     }
 
+    // 주문서 목록 조회
+    @PostMapping("/getOrderSheet")
+    private ResponseEntity<ResponseMessage> getOrderSheet (@RequestBody GetOrderSheetRequestDto dto, HttpServletRequest request) {
+
+        Claims claims = jwtUtil.extractClaimsFromToken(request);
+
+        List<GetCartResponseDto> orderSheetItems= productService.getOrderSheet(dto, claims);
+
+        ResponseMessage response = ResponseMessage.builder()
+                .data(orderSheetItems)
+                .statusCode(201)
+                .resultMessage("Diary create successfully")
+                .build();
+
+        return ResponseEntity.status(201).body(response);
+    }
+
 }
