@@ -1,5 +1,6 @@
 package com.petlog.orderService.entity;
 
+import com.petlog.common.entity.CommonEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,10 +8,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Carts {
+public class OrderItems extends CommonEntity {
 
-    private int cartId;
-    private int userId;
+    private int OrderItemsId;
+    private int orderId;
     private int productId;
     private int quantity;
 

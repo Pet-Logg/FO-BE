@@ -15,7 +15,7 @@
       <result column="img_url"/>
     </collection>
   </resultMap>
-  
+
   <insert id="addCart" parameterType="com.petlog.orderService.entity.Carts">
     INSERT INTO carts (user_id, product_id, quantity)
     VALUES (#{userId}, #{productId}, #{quantity})
@@ -57,4 +57,17 @@
     </foreach>
     AND c.user_id = #{userId}
   </select>
+
+  <insert id="createOrder" parameterType="com.petlog.orderService.entity.Orders" useGeneratedKeys="true" keyProperty="orderId">
+    INSERT INTO orders (user_id, recipient, phone, address, total_price)
+    VALUES (#{userId}, #{recipient}, #{phone}, #{address}, #{totalPrice})
+  </insert>
+
+  <insert id="createOrderItem">
+    INSERT INTO order_items (order_id, product_id, quantity)
+    VALUES
+    <foreach collection="dto.items" item="item" separator=",">
+      (#{orderId}, #{item.productId}, #{item.quantity})
+    </foreach>
+  </insert>
 </mapper>

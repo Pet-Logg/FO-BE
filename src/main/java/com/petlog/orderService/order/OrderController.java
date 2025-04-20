@@ -1,6 +1,7 @@
 package com.petlog.orderService.order;
 
 import com.petlog.orderService.dto.CartItemRequestDto;
+import com.petlog.orderService.dto.CreateOrderRequestDto;
 import com.petlog.productService.dto.DeleteCartRequestDto;
 import com.petlog.orderService.dto.GetCartResponseDto;
 import com.petlog.productService.dto.GetOrderSheetRequestDto;
@@ -76,7 +77,7 @@ public class OrderController {
         ResponseMessage response = ResponseMessage.builder()
                 .data(null)
                 .statusCode(200)
-                .resultMessage("Product deleted successfully")
+                .resultMessage("Product delete successfully")
                 .build();
         return ResponseEntity.ok(response);
     }
@@ -86,7 +87,7 @@ public class OrderController {
     private ResponseEntity<ResponseMessage> getOrderSheet (@RequestBody GetOrderSheetRequestDto dto, HttpServletRequest request) {
 
         int userId = jwtUtil.extractUserIdFromToken(request);
-        List<GetCartResponseDto> orderSheetItems= orderService.getOrderSheet(dto, userId);
+        List<GetCartResponseDto> orderSheetItems = orderService.getOrderSheet(userId, dto);
 
         ResponseMessage response = ResponseMessage.builder()
                 .data(orderSheetItems)
@@ -95,6 +96,22 @@ public class OrderController {
                 .build();
 
         return ResponseEntity.status(201).body(response);
+    }
+
+    @PostMapping
+    private ResponseEntity<ResponseMessage> createOrder (@RequestBody CreateOrderRequestDto dto, HttpServletRequest request) {
+        int userId = jwtUtil.extractUserIdFromToken(request);
+        System.out.println("userId : " + userId);
+        System.out.println("dto : " + dto);
+
+        orderService.createOrder(userId, dto);
+
+        ResponseMessage response = ResponseMessage.builder()
+                .data(null)
+                .statusCode(200)
+                .resultMessage("Order create successfully")
+                .build();
+        return ResponseEntity.ok(response);
     }
 
 }
