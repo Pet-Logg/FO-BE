@@ -98,11 +98,10 @@ public class OrderController {
         return ResponseEntity.status(201).body(response);
     }
 
+    // 주문 생성과 재고 감소
     @PostMapping
     private ResponseEntity<ResponseMessage> createOrder (@RequestBody CreateOrderRequestDto dto, HttpServletRequest request) {
         int userId = jwtUtil.extractUserIdFromToken(request);
-        System.out.println("userId : " + userId);
-        System.out.println("dto : " + dto);
 
         orderService.createOrder(userId, dto);
 

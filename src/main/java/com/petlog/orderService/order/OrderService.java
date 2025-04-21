@@ -1,6 +1,7 @@
 package com.petlog.orderService.order;
 
 import com.petlog.orderService.dto.CreateOrderRequestDto;
+import com.petlog.orderService.dto.OrderItemDto;
 import com.petlog.orderService.entity.Carts;
 import com.petlog.orderService.dto.CartItemRequestDto;
 import com.petlog.orderService.entity.Orders;
@@ -55,5 +56,11 @@ public class OrderService {
         orderRepository.createOrder(order);
 
         orderRepository.createOrderItem(order.getOrderId(), dto);
+
+        for (OrderItemDto item : dto.getItems()) {
+            orderRepository.updateProductStock(item.getProductId(), item.getQuantity());
+        }
+
     }
+
 }

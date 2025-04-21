@@ -70,4 +70,12 @@
       (#{orderId}, #{item.productId}, #{item.quantity})
     </foreach>
   </insert>
+
+  <update id="updateProductStock" >
+      UPDATE products
+      SET quantity = quantity - #{quantity}
+      WHERE id = #{productId}
+      AND deleted_at IS NULL
+  </update>
+
 </mapper>

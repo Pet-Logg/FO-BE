@@ -47,4 +47,10 @@ public interface OrderRepository {
             @Param("orderId") int orderId,
             @Param("dto") CreateOrderRequestDto dto
     );
+
+    // 상품 재고 감소
+    void updateProductStock(
+            @Param("productId") int productId,
+            @Param("quantity") int quantity
+    );
 }
