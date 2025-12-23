@@ -13,6 +13,7 @@ import com.petlog.petService.dto.UpdatePetResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -55,7 +56,6 @@ public class PetService {
             throw new BadRequestException("잘못된 날짜 형식입니다: " + dto.getPetBirth());
         }
 
-
         petRepository.createPetInfo(pet);
         return pet.getPetId();
     }
@@ -78,6 +78,7 @@ public class PetService {
         petRepository.deletePet(userId, petId);
     }
 
+    @Transactional
     public void updatePet(int petId, UpdatePetRequestDto dto, int userId) throws BadRequestException {
 
         Pets pet = new Pets();
@@ -95,7 +96,6 @@ public class PetService {
         pet.setPetGender(Pets.Gender.valueOf(dto.getPetGender().toUpperCase()));
         pet.setPetWeight(dto.getPetWeight());
         pet.setIsNeutered(dto.getIsNeutered());
-
 
         try { // // setBirth을 Date타입으로 바꾸기
             if (dto.getPetBirth() != null) {
@@ -116,10 +116,9 @@ public class PetService {
         if(!dto.getAllergy().isEmpty()){
             petRepository.insertPetAllergy(petId, dto.getAllergy());
         }
-
     }
 
-    // 다이어리 생성
+    @Transactional
     public void createDiary(int userId, CreateDiaryRequestDto dto) {
 
         Diary diary = new Diary();

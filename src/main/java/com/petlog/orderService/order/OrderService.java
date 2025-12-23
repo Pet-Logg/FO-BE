@@ -10,6 +10,7 @@ import com.petlog.orderService.dto.GetCartResponseDto;
 import com.petlog.productService.dto.GetOrderSheetRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -44,6 +45,7 @@ public class OrderService {
         return orderRepository.getOrderSheet(userId, dto);
     }
 
+    @Transactional
     public void createOrder (int userId, CreateOrderRequestDto dto) {
 
         Orders order = new Orders();
@@ -60,7 +62,6 @@ public class OrderService {
         for (OrderItemDto item : dto.getItems()) {
             orderRepository.updateProductStock(item.getProductId(), item.getQuantity());
         }
-
     }
 
 }
